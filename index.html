@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>RESPONDER</title>
+<style>
+:root {
+  --bg: #0d0f12;
+  --bg2: #13171c;
+  --bg3: #1a1f26;
+  --border: rgba(255,255,255,0.07);
+  --text: #eceef1;
+  --muted: #7a8290;
+  --red: #ff4d1c;
+  --green: #00e676;
+  --yellow: #ffd600;
+  --blue: #29b6f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+.screen { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* HOME */
+#home { background: var(--bg); }
+.home-top {
+  padding: 34px 22px 18px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.home-eyebrow { font-size: 10px; letter-spacing: 3px; color: var(--red); text-transform: uppercase; margin-bottom: 6px; font-weight: 600; }
+.home-title { font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+.home-title span { color: var(--red); }
+.home-sub { font-size: 11px; color: var(--muted); margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; flex: 1; }
+.mc {
+  border-radius: 16px; padding: 18px 16px 16px;
+  cursor: pointer; transition: transform 0.12s, opacity 0.12s;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden; border: 1px solid;
+}
+.mc:active { transform: scale(0.95); opacity: 0.8; }
+.mc-guides   { background: linear-gradient(145deg,#0e1f0e,#091409); border-color: rgba(0,230,118,0.18); }
+.mc-medicine { background: linear-gradient(145deg,#1f0e0e,#140909); border-color: rgba(255,77,28,0.18); }
+.mc-food     { background: linear-gradient(145deg,#1f1c0e,#141209); border-color: rgba(255,214,0,0.18); }
+.mc-rescue   { background: linear-gradient(145deg,#0e111f,#090b14); border-color: rgba(41,182,246,0.18); }
+.mc-num { font-size: 10px; letter-spacing: 2px; font-weight: 700; opacity: 0.55; margin-bottom: 10px; }
+.mc-icon { font-size: 34px; line-height: 1; margin-bottom: 10px; }
+.mc-title { font-size: 19px; font-weight: 800; line-height: 1.1; }
+.mc-desc { font-size: 11px; opacity: 0.5; margin-top: 5px; line-height: 1.3; }
+.mc-arr { position: absolute; bottom: 14px; right: 14px; font-size: 18px; opacity: 0.2; }
+.cg { color: var(--green); } .cr { color: var(--red); } .cy { color: var(--yellow); } .cb { color: var(--blue); }
+
+/* INNER */
+.hdr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  background: var(--bg2); flex-shrink: 0;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--border); background: none;
+  color: var(--text); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.back-btn:active { background: var(--bg3); }
+.hdr-title { font-size: 17px; font-weight: 700; }
+.badge {
+  margin-left: auto; font-size: 10px; letter-spacing: 1px;
+  padding: 3px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase;
+}
+.bg { background: rgba(0,230,118,0.12); color: var(--green); }
+.br { background: rgba(255,77,28,0.12); color: var(--red); }
+.by { background: rgba(255,214,0,0.12); color: var(--yellow); }
+.bb { background: rgba(41,182,246,0.12); color: var(--blue); }
+
+.body { flex: 1; overflow-y: auto; padding: 14px; }
+
+/* SUB MENU */
+.sub { display: flex; flex-direction: column; gap: 9px; }
+.si {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 13px; padding: 14px 16px;
+  cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; gap: 14px;
+}
+.si:active { background: var(--bg3); transform: scale(0.98); }
+.si-icon { font-size: 24px; width: 40px; text-align: center; flex-shrink: 0; }
+.si-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.si-desc { font-size: 12px; color: var(--muted); }
+.si-arr { color: var(--muted); font-size: 16px; margin-left: auto; }
+
+/* STEPS */
+.step {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  display: flex; gap: 12px;
+}
+.sn {
+  width: 28px; height: 28px; border-radius: 8px;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.st { flex: 1; }
+.st-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.st-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* CARDS */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+}
+.card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.card-name { font-size: 15px; font-weight: 700; }
+.card-body { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ALERT */
+.abox {
+  border-radius: 10px; padding: 12px 14px;
+  margin-bottom: 12px; font-size: 13px; line-height: 1.5;
+  border-left: 3px solid;
+}
+.ar { background: rgba(255,77,28,0.08); border-color: var(--red); color: #ffb09a; }
+.ag { background: rgba(0,230,118,0.08); border-color: var(--green); color: #80ffbb; }
+.ay { background: rgba(255,214,0,0.08); border-color: var(--yellow); color: #ffe57f; }
+.ab { background: rgba(41,182,246,0.08); border-color: var(--blue); color: #90d8f9; }
+
+/* TAG */
+.tag {
+  display: inline-block; padding: 3px 9px;
+  border-radius: 20px; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.ts { background: rgba(0,230,118,0.12); color: var(--green); }
+.tc { background: rgba(255,214,0,0.12); color: var(--yellow); }
+.td { background: rgba(255,77,28,0.12); color: var(--red); }
+.tbl { background: rgba(41,182,246,0.12); color: var(--blue); }
+
+/* CHECKLIST */
+.ci {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 10px;
+  margin-bottom: 8px; cursor: pointer;
+}
+.ci.done { border-color: var(--green); background: rgba(0,230,118,0.04); }
+.cb2 {
+  width: 24px; height: 24px; border-radius: 7px;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px; font-weight: 900;
+}
+.ci.done .cb2 { background: var(--green); border-color: var(--green); color: #000; }
+
+/* BUTTONS */
+.btn {
+  width: 100%; padding: 15px;
+  border-radius: 12px; border: none;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: transform 0.12s;
+  letter-spacing: 0.5px; margin-bottom: 9px;
+}
+.btn:active { transform: scale(0.97); }
+.btn-r { background: var(--red); color: #fff; }
+.btn-g { background: var(--green); color: #000; }
+.btn-b { background: var(--blue); color: #000; }
+.btn-gh { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+
+/* GPS */
+.gps-box {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 14px;
+}
+.gps-val { font-size: 20px; font-weight: 800; line-height: 1.4; letter-spacing: -0.3px; }
+.gps-acc { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+/* VITALS */
+.vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.vc {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; text-align: center;
+}
+.vv { font-size: 30px; font-weight: 800; line-height: 1; }
+.vl { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.vs { font-size: 11px; margin-top: 5px; font-weight: 700; }
+
+/* SOS */
+.sos-btn {
+  width: 130px; height: 130px; border-radius: 50%;
+  background: var(--red); margin: 16px auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; cursor: pointer;
+  box-shadow: 0 0 0 0 rgba(255,77,28,0.4);
+  transition: transform 0.12s;
+}
+.sos-btn.on { animation: sosp 1s infinite; }
+.sos-btn:active { transform: scale(0.93); }
+@keyframes sosp { 0%{box-shadow:0 0 0 0 rgba(255,77,28,0.5)} 70%{box-shadow:0 0 0 28px rgba(255,77,28,0)} 100%{box-shadow:0 0 0 0 rgba(255,77,28,0)} }
+
+/* NAV */
+.nav-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.nav-b {
+  flex: 1; padding: 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text); font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.nav-b:active { background: var(--bg3); }
+.nav-c { font-size: 12px; color: var(--muted); text-align: center; padding: 6px 0; }
+
+input[type=range] { width: 100%; accent-color: var(--blue); margin: 6px 0 10px; }
+input[type=text], select, textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 14px; border-radius: 10px;
+  font-size: 15px; outline: none; margin-bottom: 10px; font-family: inherit;
+}
+input:focus, select:focus { border-color: var(--blue); }
+select option { background: var(--bg3); }
+label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+.sec { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin: 14px 0 8px; font-weight: 600; }
+hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-top">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="home-eyebrow" id="home-eyebrow">⚠ Emergency Response System</div>
+        <div class="home-title">RES<span>POND</span>ER</div>
+      </div>
+      <button onclick="go('settings')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);width:38px;height:38px;border-radius:10px;font-size:18px;cursor:pointer;margin-top:8px">⚙️</button>
+    </div>
+  </div>
+  <div class="menu">
+    <div class="mc mc-guides" onclick="go('guides')">
+      <div>
+        <div class="mc-num cg" id="m1-num">01 — GUIDES</div>
+        <div class="mc-icon">📋</div>
+        <div class="mc-title cg" id="m1-title">Disaster Guides</div>
+        <div class="mc-desc" id="m1-desc">Flood, fire, earthquake, chemical</div>
+      </div>
+      <div class="mc-arr">›</div>
+    </div>
+    <div class="mc mc-medicine" onclick="go('medicine')">
+      <div>
+        <div class="mc-num cr" id="m2-num">02 — MEDICAL</div>
+        <div class="mc-icon">🩺</div>
+        <div class="mc-title cr" id="m2-title">Medicine</div>
+        <div class="mc-desc" id="m2-desc">First aid, triage, vitals</div>
+      </div>
+      <div class="mc-arr">›</div>
+    </div>
+    <div class="mc mc-food" onclick="go('food')">
+      <div>
+        <div class="mc-num cy" id="m3-num">03 — FOOD</div>
+        <div class="mc-icon">🌿</div>
+        <div class="mc-title cy" id="m3-title">Plant ID</div>
+        <div class="mc-desc" id="m3-desc">Photo → safe to eat?</div>
+      </div>
+      <div class="mc-arr">›</div>
+    </div>
+    <div class="mc mc-rescue" onclick="go('rescue')">
+      <div>
+        <div class="mc-num cb" id="m4-num">04 — SOS</div>
+        <div class="mc-icon">🆘</div>
+        <div class="mc-title cb" id="m4-title">Emergency Rescue</div>
+        <div class="mc-desc" id="m4-desc">GPS, signals, MAYDAY</div>
+      </div>
+      <div class="mc-arr">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <span class="hdr-title" id="set-title">Settings</span>
+  </div>
+  <div class="body">
+    <!-- LANGUAGE -->
+    <div class="sec" id="set-lang-label">Language</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <div class="si" onclick="setLang('en')" id="lang-en" style="border-color:rgba(41,182,246,0.4)">
+        <div class="si-icon">🇬🇧</div>
+        <div><div class="si-title">English</div></div>
+        <div id="lcheck-en" style="margin-left:auto;color:var(--blue);font-size:18px">✓</div>
+      </div>
+      <div class="si" onclick="setLang('ro')" id="lang-ro">
+        <div class="si-icon">🇷🇴</div>
+        <div><div class="si-title">Română</div></div>
+        <div id="lcheck-ro" style="margin-left:auto;color:var(--blue);font-size:18px;display:none">✓</div>
+      </div>
+      <div class="si" onclick="setLang('uk')" id="lang-uk">
+        <div class="si-icon">🇺🇦</div>
+        <div><div class="si-title">Українська</div></div>
+        <div id="lcheck-uk" style="margin-left:auto;color:var(--blue);font-size:18px;display:none">✓</div>
+      </div>
+    </div>
+
+    <!-- THEME -->
+    <div class="sec" id="set-theme-label">Theme</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div onclick="setTheme('dark')" style="border-radius:14px;padding:16px;cursor:pointer;background:#0d0f12;border:2px solid rgba(255,77,28,0.5);text-align:center" id="theme-dark">
+        <div style="font-size:24px;margin-bottom:6px">🌑</div>
+        <div style="font-size:13px;font-weight:700;color:#eceef1">Dark</div>
+        <div style="font-size:10px;color:#7a8290;margin-top:2px">Default</div>
+      </div>
+      <div onclick="setTheme('black')" style="border-radius:14px;padding:16px;cursor:pointer;background:#000;border:1px solid #222;text-align:center" id="theme-black">
+        <div style="font-size:24px;margin-bottom:6px">⬛</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Pure Black</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">AMOLED</div>
+      </div>
+      <div onclick="setTheme('camo')" style="border-radius:14px;padding:16px;cursor:pointer;background:linear-gradient(135deg,#2d3a1e,#1a2410,#3d4a2a,#1e2a12);border:1px solid #4a5a30;text-align:center" id="theme-camo">
+        <div style="font-size:24px;margin-bottom:6px">🪖</div>
+        <div style="font-size:13px;font-weight:700;color:#c8d8a0">Camouflage</div>
+        <div style="font-size:10px;color:#8a9870;margin-top:2px">Military</div>
+      </div>
+      <div onclick="setTheme('red')" style="border-radius:14px;padding:16px;cursor:pointer;background:linear-gradient(135deg,#1a0505,#2a0808);border:1px solid #4a1010;text-align:center" id="theme-red">
+        <div style="font-size:24px;margin-bottom:6px">🔴</div>
+        <div style="font-size:13px;font-weight:700;color:#ff6b6b">Red Alert</div>
+        <div style="font-size:10px;color:#cc4444;margin-top:2px">Emergency</div>
+      </div>
+      <div onclick="setTheme('night')" style="border-radius:14px;padding:16px;cursor:pointer;background:linear-gradient(135deg,#050515,#0a0a25);border:1px solid #1a1a4a;text-align:center" id="theme-night">
+        <div style="font-size:24px;margin-bottom:6px">🌌</div>
+        <div style="font-size:13px;font-weight:700;color:#8888ff">Night Blue</div>
+        <div style="font-size:10px;color:#5555cc;margin-top:2px">Deep space</div>
+      </div>
+      <div onclick="setTheme('sand')" style="border-radius:14px;padding:16px;cursor:pointer;background:linear-gradient(135deg,#2a2010,#1a1508);border:1px solid #4a3a18;text-align:center" id="theme-sand">
+        <div style="font-size:24px;margin-bottom:6px">🏜️</div>
+        <div style="font-size:13px;font-weight:700;color:#d4a860">Desert Sand</div>
+        <div style="font-size:10px;color:#a07840;margin-top:2px">Tactical</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES -->
+<div id="guides" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <span class="hdr-title">Disaster Guides</span>
+    <span class="badge bg">GUIDES</span>
+  </div>
+  <div class="body">
+    <div class="sub">
+      <div class="si" onclick="go('guides-offline')" style="border-color:rgba(0,230,118,0.2);background:linear-gradient(135deg,#0e1f0e,#091409)">
+        <div class="si-icon">📋</div>
+        <div>
+          <div class="si-title" style="color:var(--green)" id="g-offline-title">Offline Guides</div>
+          <div class="si-desc">Flood, fire, earthquake, chemical — ready to use without internet</div>
+        </div>
+        <div class="si-arr">›</div>
+      </div>
+      <div class="si" onclick="go('guides-ai')" style="border-color:rgba(41,182,246,0.2);background:linear-gradient(135deg,#0e111f,#090b14)">
+        <div class="si-icon">🤖</div>
+        <div>
+          <div class="si-title" style="color:var(--blue)" id="g-ai-title">AI Guide</div>
+          <div class="si-desc" id="g-ai-desc">Describe your situation — AI gives you step-by-step instructions</div>
+        </div>
+        <div class="si-arr">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES OFFLINE -->
+<div id="guides-offline" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('guides')">←</button>
+    <span class="hdr-title">Offline Guides</span>
+    <span class="badge bg">OFFLINE</span>
+  </div>
+  <div class="body">
+    <div class="sub">
+      <div class="si" onclick="detail('flood')"><div class="si-icon">🌊</div><div><div class="si-title">Flood</div><div class="si-desc">Evacuation & water safety</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('fire')"><div class="si-icon">🔥</div><div><div class="si-title">Fire & Wildfire</div><div class="si-desc">Escape routes & smoke</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('quake')"><div class="si-icon">🏚️</div><div><div class="si-title">Earthquake</div><div class="si-desc">Drop, cover, hold protocol</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('chem')"><div class="si-icon">☢️</div><div><div class="si-title">Chemical / Gas Leak</div><div class="si-desc">Decontamination & shelter</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('gokit')"><div class="si-icon">🎒</div><div><div class="si-title">Go-Bag Checklist</div><div class="si-desc">72-hour emergency kit</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('evac')"><div class="si-icon">🚗</div><div><div class="si-title">Evacuation Routes</div><div class="si-desc">Routes by disaster type</div></div><div class="si-arr">›</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES AI -->
+<div id="guides-ai" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('guides')">←</button>
+    <span class="hdr-title">AI Guide</span>
+    <span class="badge bb">AI ONLINE</span>
+  </div>
+  <div class="body">
+    <div class="abox ab">🤖 Describe your emergency situation and AI will give you personalized step-by-step instructions.</div>
+    <label>What is happening?</label>
+    <textarea id="ai-situation" placeholder="Example: There is a wildfire 2km away, I have 2 children and a dog, we are on the 3rd floor of an apartment..." style="min-height:120px;margin-bottom:10px"></textarea>
+    <label>Location / Environment</label>
+    <select id="ai-location" style="margin-bottom:10px">
+      <option>Urban / City</option>
+      <option>Suburban / Town</option>
+      <option>Rural / Countryside</option>
+      <option>Forest / Wilderness</option>
+      <option>Coastal / Beach</option>
+      <option>Mountain</option>
+    </select>
+    <label>Number of people</label>
+    <select id="ai-people" style="margin-bottom:14px">
+      <option>Just me</option>
+      <option>2-3 people</option>
+      <option>4-6 people</option>
+      <option>Group (7+)</option>
+    </select>
+    <button class="btn btn-b" onclick="askAI()">🤖 GET AI INSTRUCTIONS</button>
+    <div id="ai-result"></div>
+  </div>
+</div>
+
+<!-- MEDICINE -->
+<div id="medicine" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <span class="hdr-title">Medicine</span>
+    <span class="badge br">MEDICAL</span>
+  </div>
+  <div class="body">
+    <div class="sub">
+      <div class="si" onclick="go('medicine-offline')" style="border-color:rgba(255,77,28,0.2);background:linear-gradient(135deg,#1f0e0e,#140909)">
+        <div class="si-icon">🩹</div>
+        <div>
+          <div class="si-title" style="color:var(--red)" id="med-offline-title">Offline Medical Guides</div>
+          <div class="si-desc" id="med-offline-desc">CPR, triage, bleeding, burns — ready without internet</div>
+        </div>
+        <div class="si-arr">›</div>
+      </div>
+      <div class="si" onclick="go('medicine-ai')" style="border-color:rgba(41,182,246,0.2);background:linear-gradient(135deg,#0e111f,#090b14)">
+        <div class="si-icon">🤖</div>
+        <div>
+          <div class="si-title" style="color:var(--blue)" id="med-ai-title2">AI Medical Advisor</div>
+          <div class="si-desc" id="med-ai-desc">Describe symptoms — AI gives medical instructions</div>
+        </div>
+        <div class="si-arr">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MEDICINE OFFLINE -->
+<div id="medicine-offline" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('medicine')">←</button>
+    <span class="hdr-title">Medical Guides</span>
+    <span class="badge br">OFFLINE</span>
+  </div>
+  <div class="body">
+    <div class="sub">
+      <div class="si" onclick="detail('firstaid')"><div class="si-icon">🩹</div><div><div class="si-title">First Aid Guide</div><div class="si-desc">CPR, bleeding, burns, choking</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('vitals')"><div class="si-icon">💓</div><div><div class="si-title">Vital Signs Checker</div><div class="si-desc">Pulse, breathing assessment</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('triage')"><div class="si-icon">🏷️</div><div><div class="si-title">Triage Color Coder</div><div class="si-desc">Prioritize casualties</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('tourn')"><div class="si-icon">⏱️</div><div><div class="si-title">Tourniquet Timer</div><div class="si-desc">Track time — max 2 hours</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('hypo')"><div class="si-icon">🥶</div><div><div class="si-title">Hypothermia Detector</div><div class="si-desc">Stage & treatment guide</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('medcard')"><div class="si-icon">🪪</div><div><div class="si-title">My Medical Card</div><div class="si-desc">Blood type, allergies, contacts</div></div><div class="si-arr">›</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MEDICINE AI -->
+<div id="medicine-ai" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('medicine')">←</button>
+    <span class="hdr-title" id="med-ai-title">AI Medical Advisor</span>
+    <span class="badge bb">AI ONLINE</span>
+  </div>
+  <div class="body">
+    <div class="abox ar" id="med-warn">⚠ NOT a replacement for real medical help. Call 112 for emergencies.</div>
+
+    <!-- MODE TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="tab-text" onclick="switchMedTab('text')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--blue);background:var(--blue);color:#000;font-weight:700;font-size:14px;cursor:pointer">✍️ <span id="tab-text-lbl">Describe</span></button>
+      <button id="tab-photo" onclick="switchMedTab('photo')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-weight:700;font-size:14px;cursor:pointer">📷 <span id="tab-photo-lbl">Photo</span></button>
+    </div>
+
+    <!-- TEXT MODE -->
+    <div id="med-text-mode">
+      <label id="med-label-symptoms">Describe symptoms or injury</label>
+      <textarea id="med-situation" placeholder="Example: Person fell from 2m, severe leg pain, cannot walk..." style="min-height:100px;margin-bottom:10px"></textarea>
+      <label id="med-label-patient">Patient</label>
+      <select id="med-patient" style="margin-bottom:10px">
+        <option id="mp1">Adult (18-60)</option>
+        <option id="mp2">Child (under 12)</option>
+        <option id="mp3">Teenager (12-18)</option>
+        <option id="mp4">Elderly (60+)</option>
+        <option id="mp5">Pregnant woman</option>
+      </select>
+      <label id="med-label-resources">Resources available</label>
+      <select id="med-resources" style="margin-bottom:14px">
+        <option id="mr1">Nothing — bare hands only</option>
+        <option id="mr2">Basic first aid kit</option>
+        <option id="mr3">Full first aid kit</option>
+        <option id="mr4">Some medical supplies</option>
+      </select>
+      <button class="btn btn-r" id="med-btn-analyze" onclick="askMedAI()">🤖 GET MEDICAL INSTRUCTIONS</button>
+    </div>
+
+    <!-- PHOTO MODE -->
+    <div id="med-photo-mode" style="display:none">
+      <div id="med-upload-area" onclick="document.getElementById('med-input').click()"
+        style="border:2px dashed rgba(255,77,28,0.3);border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;background:rgba(255,77,28,0.04);margin-bottom:14px">
+        <div style="font-size:44px;margin-bottom:8px">📷</div>
+        <div style="font-size:15px;font-weight:700;color:var(--red)" id="med-upload-label">Take or Upload Photo of Wound</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px" id="med-upload-sub">Wounds · Burns · Rashes · Injuries</div>
+      </div>
+      <input type="file" id="med-input" accept="image/*" capture="environment" style="display:none" onchange="analyzeMedPhoto(this)">
+      <div id="med-photo-preview" style="display:none;margin-bottom:14px">
+        <img id="med-photo-img" style="width:100%;border-radius:12px;max-height:200px;object-fit:cover;border:1px solid var(--border)">
+      </div>
+    </div>
+
+    <div id="med-result"></div>
+  </div>
+</div>
+
+<!-- FOOD -->
+<div id="food" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <span class="hdr-title">Plant Identifier</span>
+    <span class="badge by">AI POWERED</span>
+  </div>
+  <div class="body">
+    <div class="abox ay"><span id="plant-warn-text">⚠ This tool uses AI to identify plants, mushrooms & berries. Always be cautious — never eat anything you're not 100% sure about.</span></div>
+
+    <!-- UPLOAD AREA -->
+    <div id="upload-area" onclick="document.getElementById('plant-input').click()"
+      style="border:2px dashed rgba(255,214,0,0.3);border-radius:16px;padding:32px 16px;text-align:center;cursor:pointer;background:rgba(255,214,0,0.04);margin-bottom:14px;transition:all 0.2s">
+      <div style="font-size:48px;margin-bottom:10px">📷</div>
+      <div style="font-size:16px;font-weight:700;color:var(--yellow)" id="plant-upload-label">Take or Upload Photo</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px" id="plant-upload-sub">Plants · Mushrooms · Berries · Fruits</div>
+    </div>
+    <input type="file" id="plant-input" accept="image/*" capture="environment" style="display:none" onchange="analyzePlant(this)">
+
+    <!-- PREVIEW -->
+    <div id="plant-preview" style="display:none;margin-bottom:14px">
+      <img id="plant-img" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;border:1px solid var(--border)">
+    </div>
+
+    <!-- RESULT -->
+    <div id="plant-result"></div>
+
+    <!-- DISCLAIMER -->
+    <div style="font-size:11px;color:var(--muted);text-align:center;padding:12px 0;line-height:1.6">
+      🌿 Requires internet connection for AI analysis<br>
+      ⚠ AI can make mistakes — use as a guide only
+    </div>
+  </div>
+</div>
+
+<!-- RESCUE -->
+<div id="rescue" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="go('home')">←</button>
+    <span class="hdr-title" id="rescue-title">Emergency Rescue</span>
+    <span class="badge bb">OFFLINE</span>
+  </div>
+  <div class="body">
+    <div class="sub">
+      <div class="si" onclick="detail('rgps')"><div class="si-icon">📍</div><div><div class="si-title" id="si-gps-t">Share My Position</div><div class="si-desc" id="si-gps-d">GPS coordinates + SMS</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('rsos')"><div class="si-icon">🆘</div><div><div class="si-title" id="si-sos-t">SOS Signal</div><div class="si-desc" id="si-sos-d">Flashlight morse + max alarm</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('rdead')" style="border-color:rgba(255,77,28,0.3);background:linear-gradient(135deg,#1f0a0a,#140505)"><div class="si-icon">🛡️</div><div><div class="si-title" style="color:var(--red)">Dead Man's Switch</div><div class="si-desc">Auto SOS if you don't check in</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('rmayday')"><div class="si-icon">📻</div><div><div class="si-title" id="si-may-t">MAYDAY Script</div><div class="si-desc" id="si-may-d">Radio rescue protocol</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('rsignals')"><div class="si-icon">🪞</div><div><div class="si-title" id="si-sig-t">Ground Signals</div><div class="si-desc" id="si-sig-d">Signs for aircraft</div></div><div class="si-arr">›</div></div>
+      <div class="si" onclick="detail('rfreq')"><div class="si-icon">📡</div><div><div class="si-title" id="si-frq-t">Emergency Frequencies</div><div class="si-desc" id="si-frq-d">Police, fire, aviation</div></div><div class="si-arr">›</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="screen">
+  <div class="hdr">
+    <button class="back-btn" id="dbk">←</button>
+    <span class="hdr-title" id="dtitle"></span>
+    <span class="badge" id="dbadge"></span>
+  </div>
+  <div class="body" id="dbody"></div>
+</div>
+
+<script>
+let _prev = 'home';
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (['guides','medicine','food','rescue','guides-offline','guides-ai','medicine-offline','medicine-ai','settings'].includes(id)) _prev = id;
+  cleanup();
+}
+
+function cleanup() {
+  if (window._stopSOS) window._stopSOS();
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  document.body.style.background = 'var(--bg)';
+}
+
+document.getElementById('dbk').onclick = () => { cleanup(); go(_prev); };
+
+function detail(key) {
+  document.getElementById('dbody').innerHTML = '';
+  const titles = {
+    flood:'Flood',fire:'Fire & Wildfire',quake:'Earthquake',chem:'Chemical/Gas Leak',
+    gokit:'Go-Bag Checklist',evac:'Evacuation Routes',
+    firstaid:'First Aid',vitals:'Vital Signs',triage:'Triage Coder',
+    tourn:'Tourniquet Timer',hypo:'Hypothermia',medcard:'Medical Card',
+    fsafe:'Safe Food',fwater:'Water Purification',fnopower:'No Power Cooking',
+    fsigns:'Spoilage Signs',fration:'Ration Calculator',
+    rgps:'My Position',rsos:'SOS Signal',rmayday:'MAYDAY Script',
+    rsignals:'Ground Signals',rfreq:'Emergency Frequencies',rdead:"Dead Man's Switch"
+  };
+  const badges = {
+    flood:'WATER',fire:'FIRE',quake:'QUAKE',chem:'HAZMAT',gokit:'KIT',evac:'ROUTES',
+    firstaid:'MEDICAL',vitals:'MEDICAL',triage:'MEDICAL',tourn:'MEDICAL',hypo:'MEDICAL',medcard:'MEDICAL',
+    fsafe:'FOOD',fwater:'WATER',fnopower:'FOOD',fsigns:'FOOD',fration:'FOOD',
+    rgps:'GPS',rsos:'SOS',rmayday:'RADIO',rsignals:'SIGNAL',rfreq:'RADIO',rdead:'SOS AUTO'
+  };
+  const bclass = {
+    flood:'bb',fire:'br',quake:'by',chem:'br',gokit:'bg',evac:'bg',
+    firstaid:'br',vitals:'br',triage:'br',tourn:'br',hypo:'br',medcard:'br',
+    fsafe:'by',fwater:'by',fnopower:'by',fsigns:'by',fration:'by',
+    rgps:'bb',rsos:'br',rmayday:'bb',rsignals:'by',rfreq:'bb',rdead:'br'
+  };
+  document.getElementById('dtitle').textContent = titles[key]||key;
+  document.getElementById('dbadge').className = 'badge '+(bclass[key]||'bg');
+  document.getElementById('dbadge').textContent = badges[key]||'INFO';
+  go('detail');
+  render(key, document.getElementById('dbody'));
+}
+
+function stepGuide(steps, accentColor, el) {
+  let cur = 0;
+  const draw = () => {
+    const s = steps[cur];
+    el.innerHTML = `
+      <div class="nav-c">Step ${cur+1} of ${steps.length}</div>
+      <div class="nav-row">
+        <button class="nav-b" onclick="SC(-1)" ${cur===0?'disabled style="opacity:0.3"':''}>← Prev</button>
+        <button class="nav-b" onclick="SC(1)" ${cur===steps.length-1?'disabled style="opacity:0.3"':''}>Next →</button>
+      </div>
+      <div class="step" style="border-color:${accentColor}33;margin-bottom:14px">
+        <div class="sn" style="background:${accentColor}18;color:${accentColor}">${cur+1}</div>
+        <div class="st"><div class="st-title">${s.t}</div><div class="st-text">${s.b}</div></div>
+      </div>
+      <button class="btn btn-gh" onclick="speak('Step ${cur+1}: '+decodeURIComponent('${encodeURIComponent(s.t+'. '+s.b)}'))">🔊 Read Aloud</button>
+      <hr>
+      <div class="sec">All Steps</div>
+      ${steps.map((x,i)=>`<div class="step" style="opacity:${i===cur?1:0.45};cursor:pointer;border-color:${accentColor}18" onclick="SJ(${i})">
+        <div class="sn" style="background:${accentColor}18;color:${accentColor}">${i+1}</div>
+        <div class="st"><div class="st-title">${x.t}</div></div>
+      </div>`).join('')}
+    `;
+  };
+  window.SC = d => { cur = Math.max(0,Math.min(steps.length-1,cur+d)); draw(); };
+  window.SJ = i => { cur=i; draw(); el.scrollTop=0; };
+  draw();
+}
+
+function speak(text) {
+  if ('speechSynthesis' in window) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate=0.82; speechSynthesis.speak(u); }
+}
+
+function render(key, el) {
+  // GUIDES
+  const guideSteps = {
+    flood: [
+      {t:'Move to Higher Ground',b:'Go upstairs or to a hill immediately. Flash floods rise in minutes. Take your go-bag. Do not wait.'},
+      {t:'Never Enter Floodwater',b:'15cm of fast-moving water knocks you down. 30cm sweeps a car. Walk or drive through floodwater — never.'},
+      {t:'Turn Off Electricity',b:'Switch off at the breaker if safe. Do not touch any electrical equipment that is wet.'},
+      {t:'Sandbag Doors & Windows',b:'Fill bags with dirt or sand. Place at thresholds. Cover with plastic sheeting sealed with tape.'},
+      {t:'Signal for Rescue',b:'Wave bright cloth from upper window. Use phone flashlight SOS. Stay visible and stay high.'},
+      {t:'After the Flood',b:'Do not return until authorities confirm it is safe. Document damage. Avoid all floodwater — it is contaminated.'},
+    ],
+    fire: [
+      {t:'GET OUT IMMEDIATELY',b:'Do not grab belongings. Alert everyone loudly. Every second matters.'},
+      {t:'Stay Low Under Smoke',b:'Crawl on hands and knees where air is cleaner near the floor. Hold breath through smoke.'},
+      {t:'Test Doors Before Opening',b:'Touch door with back of hand. If hot — fire is behind it. Find another exit.'},
+      {t:'Close Doors Behind You',b:'Closed doors dramatically slow fire spread. This buys you critical minutes.'},
+      {t:'Once Outside — Stay Out',b:'Never re-enter a burning building. Meet at rally point. Call 112 from outside.'},
+      {t:'Wildfire: Leave Early',b:'Do not wait for evacuation orders. Leave when you see smoke or receive any warning. Delay is fatal.'},
+    ],
+    quake: [
+      {t:'DROP — COVER — HOLD ON',b:'Drop to hands and knees. Get under a sturdy table. Hold on. Cover neck with one arm.'},
+      {t:'Away From Windows',b:'Move away from glass, shelves, and anything that can fall. Do not run outside during shaking.'},
+      {t:'If Outside',b:'Move away from buildings, streetlights, and power lines. Drop and stay until shaking completely stops.'},
+      {t:'After Shaking Stops',b:'Check for injuries. Expect aftershocks. Do not use elevators. Open doors carefully — frame may be warped.'},
+      {t:'Check for Gas',b:'If you smell gas: open windows, do not touch switches, leave immediately, call from outside.'},
+      {t:'Building Safety',b:'Look for cracks, leaning walls, damaged foundations. Do not re-enter until inspected as safe.'},
+    ],
+    chem: [
+      {t:'Move Upwind & Uphill',b:'Chemicals travel with wind and flow downhill. Move perpendicular to wind away from the source immediately.'},
+      {t:'Cover Your Face',b:'Use wet cloth over nose and mouth as filter. Hold breath if passing through contaminated area.'},
+      {t:'Remove Clothing',b:'Roll clothing down — do not pull over head. Cut off if necessary. Seal in plastic bag.'},
+      {t:'Flush Exposed Skin',b:'Rinse with large amounts of cool water for 15-20 minutes. Do not scrub — spreads contamination.'},
+      {t:'Shelter In Place',b:'If ordered: seal doors, windows, vents with tape. Turn off HVAC. Move to interior room on highest floor.'},
+      {t:'Seek Medical Help',b:'Report all exposures to emergency personnel. Symptoms can be delayed by hours.'},
+    ],
+  };
+
+  if (guideSteps[key]) {
+    const colors = { flood:'var(--blue)', fire:'var(--red)', quake:'var(--yellow)', chem:'var(--red)' };
+    stepGuide(guideSteps[key], colors[key], el);
+    return;
+  }
+
+  if (key === 'gokit') {
+    const items = [
+      {n:'Water',d:'4L per person (72h)'},
+      {n:'Non-perishable food',d:'3-day supply'},
+      {n:'Manual can opener',d:'1 unit'},
+      {n:'First Aid Kit',d:'Complete kit'},
+      {n:'Prescription medications',d:'7-day supply'},
+      {n:'Flashlight + batteries',d:'2 units'},
+      {n:'Battery/hand-crank radio',d:'1 unit'},
+      {n:'Whistle',d:'1 per person — signal for help'},
+      {n:'Dust masks / N95',d:'1 per person'},
+      {n:'Emergency blankets',d:'1 per person'},
+      {n:'Copies of documents',d:'ID, insurance, emergency contacts'},
+      {n:'Cash (small bills)',d:'Minimum $100'},
+    ];
+    let state = JSON.parse(localStorage.getItem('gokit')||'{}');
+    const draw = () => {
+      const done = Object.values(state).filter(Boolean).length;
+      el.innerHTML = `
+        <div class="abox ${done===items.length?'ag':done>items.length/2?'ay':'ar'}">
+          ${done===items.length?'✅ Kit complete — you are ready!':'⚠ '+done+' / '+items.length+' items packed'}
+        </div>
+        ${items.map((x,i)=>`<div class="ci ${state[i]?'done':''}" onclick="GKT(${i})">
+          <div class="cb2">${state[i]?'✓':''}</div>
+          <div><div style="font-size:14px;font-weight:500">${x.n}</div><div style="font-size:12px;color:var(--muted)">${x.d}</div></div>
+        </div>`).join('')}
+        <button class="btn btn-gh" style="margin-top:4px" onclick="GKR()">Reset</button>
+      `;
+    };
+    window.GKT = i => { state[i]=!state[i]; localStorage.setItem('gokit',JSON.stringify(state)); draw(); };
+    window.GKR = () => { state={}; localStorage.removeItem('gokit'); draw(); };
+    draw(); return;
+  }
+
+  if (key === 'evac') {
+    const routes = {
+      'Flood':[
+        {n:'Route Alpha',s:'clear',t:'12 min',i:'→ Head North on Main St → Cross Hillside Bridge → Community Center'},
+        {n:'Route Beta',s:'caution',t:'18 min',i:'→ West on Oak Ave → Avoid River District → High School'},
+        {n:'Route Gamma',s:'blocked',t:'N/A',i:'⛔ River Rd flooded. Do not attempt.'},
+      ],
+      'Fire':[
+        {n:'Route Alpha',s:'clear',t:'9 min',i:'→ Drive East away from smoke → Highway 7 → Fairgrounds'},
+        {n:'Route Beta',s:'caution',t:'22 min',i:'→ South on Route 12 → Low visibility → Mall Parking'},
+        {n:'Route Gamma',s:'blocked',t:'N/A',i:'⛔ Forest Rd — active fire.'},
+      ],
+      'Earthquake':[
+        {n:'Route Alpha',s:'caution',t:'15 min',i:'→ Walk only → Away from buildings → City Park open ground'},
+        {n:'Route Beta',s:'clear',t:'8 min',i:'→ Open field → Sports Field on Elm St'},
+        {n:'Route Gamma',s:'blocked',t:'N/A',i:'⛔ Downtown bridge structurally unsafe.'},
+      ],
+      'Chemical':[
+        {n:'Route Alpha',s:'clear',t:'7 min',i:'→ Move UPWIND → North via Industrial Rd → North Community Center'},
+        {n:'Route Beta',s:'caution',t:'14 min',i:'→ East on Valley Rd — windows CLOSED → East Mall'},
+        {n:'Route Gamma',s:'blocked',t:'N/A',i:'⛔ South Rd in contamination zone. TURN BACK.'},
+      ],
+    };
+    const sc = {clear:'ts',caution:'tc',blocked:'td'};
+    el.innerHTML = `
+      <label>Disaster Type</label>
+      <select id="et" onchange="drawRoutes()">
+        <option>Flood</option><option>Fire</option><option>Earthquake</option><option>Chemical</option>
+      </select>
+      <div id="routeout"></div>
+    `;
+    window.drawRoutes = () => {
+      const t = document.getElementById('et').value;
+      document.getElementById('routeout').innerHTML = (routes[t]||[]).map(r=>`
+        <div class="card">
+          <div class="card-hdr"><span class="card-name">${r.n}</span><span class="tag ${sc[r.s]}">${r.s}</span></div>
+          ${r.t!=='N/A'?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">🕐 ${r.t}</div>`:''}
+          <div class="card-body">${r.i}</div>
+        </div>
+      `).join('');
+    };
+    window.drawRoutes(); return;
+  }
+
+  // MEDICINE
+  if (key === 'firstaid') {
+    const topics = {
+      cpr:[
+        {t:'Check Person & Scene',b:'Tap shoulders: "Are you OK?" Ensure scene is safe for you to approach.'},
+        {t:'Call 112',b:'Tell someone to call emergency services. Use speakerphone if alone so you can continue.'},
+        {t:'Check Breathing',b:'Tilt head back, lift chin. Look, listen, feel for normal breathing — no more than 10 seconds.'},
+        {t:'30 Chest Compressions',b:'Push down 5cm on center of chest hard and fast. Rate: 100-120/min. Allow full recoil.'},
+        {t:'2 Rescue Breaths',b:'Pinch nose, seal over mouth. 1 breath per second. Watch chest rise. Continue 30:2 cycle.'},
+      ],
+      choking:[
+        {t:'Recognize Choking',b:'Cannot speak, breathe or cough. Lips turning blue. May clutch throat with both hands.'},
+        {t:'5 Back Blows',b:'Lean person forward. Give 5 firm blows between shoulder blades with heel of hand.'},
+        {t:'5 Abdominal Thrusts',b:'Fist above navel. Grab with other hand. 5 quick inward-upward thrusts (Heimlich).'},
+        {t:'Alternate & Repeat',b:'Keep alternating 5 back blows and 5 thrusts until object is expelled.'},
+        {t:'If Unconscious',b:'Lower to ground, call 112, begin CPR, check mouth before rescue breaths.'},
+      ],
+      bleeding:[
+        {t:'Protect Yourself',b:'Gloves if available. Avoid direct blood contact. Wash hands thoroughly after.'},
+        {t:'Apply Firm Pressure',b:'Press with clean cloth. Maintain constant firm pressure — do not lift to check bleeding.'},
+        {t:'Elevate the Wound',b:'Raise wounded area above heart level if possible to slow blood flow.'},
+        {t:'Add More Dressing',b:'If blood soaks through, add more material on top. Never remove original dressing.'},
+        {t:'Tourniquet for Limbs',b:'Life-threatening limb bleed: apply 5cm above wound. Note time applied. Do not remove.'},
+      ],
+      burns:[
+        {t:'Remove from Heat',b:'Move away from heat source. Remove clothing and jewelry near burn unless stuck to skin.'},
+        {t:'Cool for 20 Minutes',b:'Run COOL (not cold) water for 20 min. No ice, butter, or toothpaste — ever.'},
+        {t:'Cover Loosely',b:'Cling wrap or clean plastic bag. Do not wrap tightly or use fluffy materials.'},
+        {t:'Pain Relief',b:'Paracetamol or ibuprofen if not contraindicated. Do not pop blisters.'},
+        {t:'Get Medical Help',b:'Burns on face/hands/joints, burns larger than palm, chemical burns need immediate care.'},
+      ],
+    };
+    let topic='cpr', cur=0;
+    const draw = () => {
+      const s = topics[topic][cur];
+      el.innerHTML = `
+        <label>Emergency Type</label>
+        <select onchange="FAT(this.value)">
+          <option value="cpr" ${topic==='cpr'?'selected':''}>CPR — Cardiac Arrest</option>
+          <option value="choking" ${topic==='choking'?'selected':''}>Choking</option>
+          <option value="bleeding" ${topic==='bleeding'?'selected':''}>Severe Bleeding</option>
+          <option value="burns" ${topic==='burns'?'selected':''}>Burns</option>
+        </select>
+        <div class="nav-c">Step ${cur+1} of ${topics[topic].length}</div>
+        <div class="nav-row">
+          <button class="nav-b" onclick="FAS(-1)" ${cur===0?'disabled style="opacity:0.3"':''}>← Prev</button>
+          <button class="nav-b" onclick="FAS(1)" ${cur===topics[topic].length-1?'disabled style="opacity:0.3"':''}>Next →</button>
+        </div>
+        <div class="step" style="border-color:var(--red)33">
+          <div class="sn" style="background:rgba(255,77,28,0.15);color:var(--red)">${cur+1}</div>
+          <div class="st"><div class="st-title">${s.t}</div><div class="st-text">${s.b}</div></div>
+        </div>
+        <button class="btn btn-gh" onclick="speak('Step ${cur+1}: '+decodeURIComponent('${encodeURIComponent(s.t+'. '+s.b)}'))">🔊 Read Aloud</button>
+      `;
+    };
+    window.FAT = t => { topic=t; cur=0; draw(); };
+    window.FAS = d => { cur=Math.max(0,Math.min(topics[topic].length-1,cur+d)); draw(); };
+    draw(); return;
+  }
+
+  if (key === 'vitals') {
+    el.innerHTML = `
+      <div class="vgrid">
+        <div class="vc"><div class="vv" id="pv" style="color:var(--red)">72</div><div class="vl">Pulse (bpm)</div><div class="vs" id="ps" style="color:var(--green)">Normal</div></div>
+        <div class="vc"><div class="vv" id="bv" style="color:var(--blue)">16</div><div class="vl">Breaths/min</div><div class="vs" id="bs" style="color:var(--green)">Normal</div></div>
+      </div>
+      <label>Pulse (bpm)</label>
+      <input type="range" min="20" max="200" value="72" oninput="UV('p',this.value)">
+      <label>Breathing Rate (breaths/min)</label>
+      <input type="range" min="4" max="40" value="16" oninput="UV('b',this.value)">
+      <div id="vass" class="abox ag">✅ Vitals appear normal. Continue monitoring.</div>
+    `;
+    window.UV = (type, val) => {
+      val = parseInt(val);
+      if (type==='p') {
+        document.getElementById('pv').textContent = val;
+        const ok=val>=60&&val<=100, crit=val<40||val>150;
+        const el2=document.getElementById('ps');
+        el2.textContent=crit?'CRITICAL':ok?'Normal':'Abnormal';
+        el2.style.color=crit?'var(--red)':ok?'var(--green)':'var(--yellow)';
+      } else {
+        document.getElementById('bv').textContent = val;
+        const ok=val>=12&&val<=20, crit=val<8||val>30;
+        const el2=document.getElementById('bs');
+        el2.textContent=crit?'CRITICAL':ok?'Normal':'Abnormal';
+        el2.style.color=crit?'var(--red)':ok?'var(--green)':'var(--yellow)';
+      }
+    }; return;
+  }
+
+  if (key === 'triage') {
+    el.innerHTML = `
+      <div class="abox ab">Answer questions to determine triage priority color.</div>
+      <label>Is the person breathing?</label>
+      <select id="t1"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+      <label>Can they follow simple commands?</label>
+      <select id="t2"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+      <label>Severe uncontrolled bleeding?</label>
+      <select id="t3"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+      <button class="btn btn-r" onclick="CT()">CALCULATE TRIAGE</button>
+      <div id="tres"></div>
+    `;
+    window.CT = () => {
+      const b=document.getElementById('t1').value, c=document.getElementById('t2').value, bl=document.getElementById('t3').value;
+      if(!b||!c||!bl) return;
+      let col, lbl, act;
+      if(b==='No'){col='#333';lbl='⬛ BLACK — Expectant';act='Unsurvivable or deceased. Resources for survivable cases.';}
+      else if(c==='No'||bl==='Yes'){col='var(--red)';lbl='🔴 RED — IMMEDIATE';act='Life-threatening. Treat right now. Cannot wait.';}
+      else if(c==='Yes'&&bl==='No'){col='var(--green)';lbl='🟢 GREEN — Minor';act='Walking wounded. Stable. Treat after red and yellow.';}
+      else{col='var(--yellow)';lbl='🟡 YELLOW — Delayed';act='Serious but stable. Can wait 30-60 minutes.';}
+      document.getElementById('tres').innerHTML=`<div style="text-align:center;padding:20px;background:var(--bg2);border-radius:12px;border:2px solid ${col};margin-top:4px"><div style="font-size:22px;font-weight:900;color:${col}">${lbl}</div><div style="font-size:13px;color:var(--muted);margin-top:8px">${act}</div></div>`;
+    }; return;
+  }
+
+  if (key === 'tourn') {
+    let interval=null, secs=0, on=false;
+    el.innerHTML = `
+      <div class="abox ar">⚠ Tourniquet must be removed within 2 hours. Permanent damage after 4-6 hours.</div>
+      <div style="text-align:center;padding:20px 0">
+        <div id="tt" style="font-size:60px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--green);letter-spacing:-2px">00:00</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:2px">TIME ELAPSED</div>
+        <div id="tw" style="font-size:13px;margin-top:10px;color:var(--green);font-weight:600">Within safe window</div>
+      </div>
+      <button class="btn btn-r" id="tbtn" onclick="TT()">▶ START TIMER</button>
+      <button class="btn btn-gh" onclick="TR()">Reset</button>
+      <hr>
+      <div class="sec">How to Apply</div>
+      <div class="step"><div class="sn" style="background:rgba(255,77,28,0.15);color:var(--red)">1</div><div class="st"><div class="st-title">Apply 5cm Above Wound</div><div class="st-text">Never over a joint. Apply directly on skin.</div></div></div>
+      <div class="step"><div class="sn" style="background:rgba(255,77,28,0.15);color:var(--red)">2</div><div class="st"><div class="st-title">Tighten Until Bleeding Stops</div><div class="st-text">It will be painful — this is necessary and correct.</div></div></div>
+      <div class="step"><div class="sn" style="background:rgba(255,77,28,0.15);color:var(--red)">3</div><div class="st"><div class="st-title">Note the Time — Start Timer Now</div><div class="st-text">Write time on person's arm or forehead.</div></div></div>
+      <div class="step"><div class="sn" style="background:rgba(255,77,28,0.15);color:var(--red)">4</div><div class="st"><div class="st-title">Never Remove It Yourself</div><div class="st-text">Only medical personnel should remove a tourniquet.</div></div></div>
+    `;
+    window.TT = () => {
+      if(!on){
+        on=true; document.getElementById('tbtn').textContent='⏸ Pause'; document.getElementById('tbtn').className='btn btn-gh';
+        interval=setInterval(()=>{
+          secs++;
+          const m=String(Math.floor(secs/60)).padStart(2,'0'), s=String(secs%60).padStart(2,'0');
+          document.getElementById('tt').textContent=m+':'+s;
+          const mins=secs/60;
+          const tv=document.getElementById('tt'), tw=document.getElementById('tw');
+          if(mins>=120){tv.style.color='var(--red)';tw.style.color='var(--red)';tw.textContent='🚨 CRITICAL — GET MEDICAL HELP NOW';}
+          else if(mins>=90){tv.style.color='var(--red)';tw.style.color='var(--red)';tw.textContent='⚠ 30 minutes left!';}
+          else if(mins>=60){tv.style.color='var(--yellow)';tw.style.color='var(--yellow)';tw.textContent='⚠ 1 hour — alert medics';}
+        },1000);
+      } else {
+        on=false; clearInterval(interval);
+        document.getElementById('tbtn').textContent='▶ Resume'; document.getElementById('tbtn').className='btn btn-r';
+      }
+    };
+    window.TR = () => {
+      clearInterval(interval); on=false; secs=0;
+      document.getElementById('tt').textContent='00:00'; document.getElementById('tt').style.color='var(--green)';
+      document.getElementById('tw').textContent='Within safe window'; document.getElementById('tw').style.color='var(--green)';
+      document.getElementById('tbtn').textContent='▶ START TIMER'; document.getElementById('tbtn').className='btn btn-r';
+    };
+    window._stopSOS = () => { clearInterval(interval); }; return;
+  }
+
+  if (key === 'hypo') {
+    const symptoms = ['Shivering uncontrollably','Skin is pale or bluish','Confused or slurred speech','Loss of coordination / stumbling','Shivering has STOPPED (dangerous sign)','Unconscious or unresponsive'];
+    el.innerHTML = `
+      <div class="abox ab">Select all symptoms present.</div>
+      ${symptoms.map((s,i)=>`<div class="ci" id="hy${i}" onclick="this.classList.toggle('done');this.querySelector('.cb2').textContent=this.classList.contains('done')?'✓':'';HYC()"><div class="cb2"></div><div style="font-size:14px;font-weight:500">${s}</div></div>`).join('')}
+      <div id="hyres"></div>
+    `;
+    window.HYC = () => {
+      const done=document.querySelectorAll('#dbody .ci.done').length;
+      let stage,act,cls;
+      if(done===0){stage='No hypothermia';act='Continue monitoring if in cold.';cls='ag';}
+      else if(done<=2){stage='🟡 MILD Hypothermia';act='Move to warm place. Remove wet clothes. Warm beverages. Blankets.';cls='ay';}
+      else if(done<=4){stage='🟠 MODERATE Hypothermia';act='DO NOT rub skin. Warm core (armpits, groin). Keep still. Seek help.';cls='ay';}
+      else{stage='🔴 SEVERE Hypothermia';act='Medical emergency! Handle gently — cardiac arrest risk. CPR if no pulse.';cls='ar';}
+      document.getElementById('hyres').innerHTML=`<div class="abox ${cls}" style="margin-top:10px"><strong>${stage}</strong><br>${act}</div>`;
+    }; return;
+  }
+
+  if (key === 'medcard') {
+    const s = JSON.parse(localStorage.getItem('medcard')||'{}');
+    el.innerHTML = `
+      <label>Full Name</label><input type="text" id="mcn" placeholder="John Smith" value="${s.name||''}">
+      <label>Blood Type</label>
+      <select id="mcb">${['','A+','A-','B+','B-','AB+','AB-','O+','O-','Unknown'].map(t=>`<option ${s.blood===t?'selected':''}>${t}</option>`).join('')}</select>
+      <label>Allergies</label><input type="text" id="mca" placeholder="Penicillin, nuts..." value="${s.allergy||''}">
+      <label>Current Medications</label><input type="text" id="mcm" placeholder="Aspirin 100mg..." value="${s.meds||''}">
+      <label>Emergency Contact</label><input type="text" id="mcc" placeholder="Name: +number" value="${s.contact||''}">
+      <button class="btn btn-r" onclick="MCS()">SAVE CARD</button>
+      <div id="mcd"></div>
+    `;
+    window.MCS = () => {
+      const card={name:document.getElementById('mcn').value,blood:document.getElementById('mcb').value,allergy:document.getElementById('mca').value,meds:document.getElementById('mcm').value,contact:document.getElementById('mcc').value};
+      localStorage.setItem('medcard',JSON.stringify(card));
+      document.getElementById('mcd').innerHTML=`<div style="background:var(--bg2);border:2px solid var(--red);border-radius:14px;padding:20px;margin-top:12px">
+        <div style="font-size:10px;color:var(--red);letter-spacing:2px;font-weight:700;margin-bottom:10px">MEDICAL ALERT CARD</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:12px">${card.name||'Unknown'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><div style="font-size:10px;color:var(--muted)">BLOOD TYPE</div><div style="font-size:28px;font-weight:900;color:var(--red)">${card.blood||'?'}</div></div>
+          <div><div style="font-size:10px;color:var(--muted)">ALLERGIES</div><div style="font-size:14px;font-weight:700">${card.allergy||'None'}</div></div>
+        </div>
+        <div style="margin-bottom:8px"><div style="font-size:10px;color:var(--muted)">MEDICATIONS</div><div style="font-size:13px">${card.meds||'None'}</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">EMERGENCY CONTACT</div><div style="font-size:15px;font-weight:700">${card.contact||'—'}</div></div>
+      </div>`;
+    };
+    if(s.name) window.MCS(); return;
+  }
+
+  // FOOD
+  if (key === 'fsafe') {
+    el.innerHTML = `<div class="abox ay">⚠ When in doubt — throw it out.</div>` +
+    [
+      {n:'Canned Foods (undamaged)',s:true,t:'Safe if can is not bulging, rusted, or leaking. No unusual smell. Rinse before use.'},
+      {n:'Dry Goods (rice, pasta, flour)',s:true,t:'Safe if dry and sealed. Check for insects or mold before cooking.'},
+      {n:'Fridge food — power out under 4h',s:true,t:'Generally safe. After 4h without power, evaluate each item individually.'},
+      {n:'Fridge food — power out over 4h',s:false,t:'Throw away all meat, fish, eggs, dairy, and cooked leftovers. Unsafe temperatures.'},
+      {n:'Frozen food with ice crystals',s:true,t:'Safe to cook or refreeze if ice crystals are still present in the food.'},
+      {n:'Any food touched by floodwater',s:false,t:'Throw away ALL food touched by floodwater including canned goods.'},
+      {n:'Food with unusual smell or color',s:false,t:'Never taste-test. If it smells or looks wrong — discard it.'},
+      {n:'Honey, sugar, salt',s:true,t:'Indefinite shelf life if kept dry. Never spoils under any circumstances.'},
+    ].map(f=>`<div class="card"><div class="card-hdr"><span class="card-name">${f.n}</span><span class="tag ${f.s?'ts':'td'}">${f.s?'SAFE':'DISCARD'}</span></div><div class="card-body">${f.t}</div></div>`).join('');
+    return;
+  }
+
+  if (key === 'fwater') {
+    el.innerHTML = `<div class="abox ar">🚨 Do not drink tap water after a disaster unless confirmed safe.</div>` +
+    [
+      {m:'Boiling',i:'🔥',t:'Bring to rolling boil for 1 minute (3 min above 2000m altitude). Cool and store in clean sealed container.'},
+      {m:'Purification Tablets',i:'💊',t:'Iodine or chlorine tablets. Follow package instructions. Wait 30 min before drinking.'},
+      {m:'Household Bleach',i:'🧴',t:'8 drops of 5-6% unscented bleach per 1 litre. Stir, wait 30 min. Should smell faintly of chlorine.'},
+      {m:'Cloth Pre-Filter',i:'👕',t:'Pour through clean cloth to remove particles. Must also boil or use tablets after filtering.'},
+      {m:'SODIS (Sun + Plastic Bottle)',i:'☀️',t:'Fill clear plastic bottle, leave in direct sun 6h (sunny) or 48h (cloudy). Kills most pathogens.'},
+    ].map(w=>`<div class="card"><div class="card-hdr"><span class="card-name">${w.i} ${w.m}</span></div><div class="card-body">${w.t}</div></div>`).join('');
+    return;
+  }
+
+  if (key === 'fnopower') {
+    el.innerHTML = `<div class="abox ab">Recipes requiring no electricity or gas — fire, camp stove, or solar only.</div>` +
+    [
+      {n:'Canned Bean Stew',tm:'15 min',t:'Open canned beans + canned tomatoes + canned corn. Heat over fire. Add salt and spices.'},
+      {n:'Rice + Canned Tuna',tm:'25 min',t:'Boil rice. Drain canned tuna. Mix together. Add canned vegetables if available.'},
+      {n:'No-Cook Energy Bars',tm:'0 min',t:'Crushed crackers + peanut butter + honey + oats. Mix and press into bars. High energy.'},
+      {n:'Oatmeal + Powdered Milk',tm:'10 min',t:'Boil water, add oats, powdered milk, and sugar or honey. Ready in minutes.'},
+      {n:'Canned Soup',tm:'5 min',t:'Most canned soups are safe to eat cold in emergencies. Heating improves taste only.'},
+    ].map(r=>`<div class="card"><div class="card-hdr"><span class="card-name">${r.n}</span><span class="tag tc">⏱ ${r.tm}</span></div><div class="card-body">${r.t}</div></div>`).join('');
+    return;
+  }
+
+  if (key === 'fsigns') {
+    el.innerHTML = `<div class="abox ar">🚨 When in doubt — throw it out. Food poisoning in a disaster is life-threatening.</div>` +
+    [
+      {s:'Unusual Smell',d:true,t:'Sour, rancid, or off odor. Trust your nose — discard immediately.'},
+      {s:'Visible Mold',d:true,t:'Soft foods: discard entire item. Hard cheese: cut 2cm around mold, rest is safe.'},
+      {s:'Slimy Texture',d:true,t:'Slimy meat, vegetables, or leftovers = bacterial growth. Discard.'},
+      {s:'Bulging or Deeply Dented Can',d:true,t:'Bulging = gas from bacteria (botulism risk). Never open.'},
+      {s:'Unexpected Color Change',d:true,t:'Gray meat, black vegetables, darkened dairy — discard.'},
+      {s:'Fizzing When Opened',d:true,t:'Any unexpected fizzing in non-carbonated food = fermentation. Discard.'},
+      {s:'Crystals in Canned Fish',d:false,t:'Harmless struvite crystals. Safe to eat.'},
+      {s:'Separated Oil/Water',d:false,t:'Normal in peanut butter, coconut milk. Stir and use normally.'},
+    ].map(f=>`<div class="card"><div class="card-hdr"><span class="card-name">${f.s}</span><span class="tag ${f.d?'td':'ts'}">${f.d?'DISCARD':'SAFE'}</span></div><div class="card-body">${f.t}</div></div>`).join('');
+    return;
+  }
+
+  if (key === 'fration') {
+    el.innerHTML = `
+      <div class="abox ab">How long will your supplies last?</div>
+      <label>People: <span id="rp">4</span></label>
+      <input type="range" min="1" max="20" value="4" oninput="document.getElementById('rp').textContent=this.value;RC()">
+      <label>Canned food (cans): <span id="rc">30</span></label>
+      <input type="range" min="0" max="200" value="30" oninput="document.getElementById('rc').textContent=this.value;RC()">
+      <label>Dry food (kg): <span id="rd">5</span></label>
+      <input type="range" min="0" max="50" value="5" oninput="document.getElementById('rd').textContent=this.value;RC()">
+      <label>Water (litres): <span id="rw">40</span></label>
+      <input type="range" min="0" max="500" value="40" oninput="document.getElementById('rw').textContent=this.value;RC()">
+      <div id="rres"></div>
+    `;
+    window.RC = () => {
+      const p=parseInt(document.getElementById('rp').textContent);
+      const c=parseInt(document.getElementById('rc').textContent);
+      const d=parseInt(document.getElementById('rd').textContent);
+      const w=parseInt(document.getElementById('rw').textContent);
+      const fd=(c*0.5+d*2.5)/p, wd=w/(p*3), days=Math.min(fd,wd);
+      const cls=days>=7?'ag':days>=3?'ay':'ar';
+      document.getElementById('rres').innerHTML=`<div class="abox ${cls}"><strong>Estimated: ${days.toFixed(1)} days</strong><br>Food: ${fd.toFixed(1)}d · Water: ${wd.toFixed(1)}d${days<3?'<br>⚠ Critical shortage!':days>=7?'<br>✅ Good supply.':''}</div>`;
+    };
+    window.RC(); return;
+  }
+
+  // RESCUE
+  if (key === 'rgps') {
+    el.innerHTML = `
+      <div class="gps-box">
+        <div style="font-size:28px;margin-bottom:8px">📡</div>
+        <div class="gps-val" id="gc">Getting location...</div>
+        <div class="gps-acc" id="ga">Acquiring GPS signal</div>
+        <div style="font-size:13px;margin-top:8px;font-weight:600" id="gs">Please wait</div>
+      </div>
+      <button class="btn btn-b" onclick="GG()">🔄 Get My Location</button>
+      <button class="btn btn-gh" id="copybtn" onclick="CC()" disabled>📋 Copy Coordinates</button>
+      <button class="btn btn-gh" id="smsbtn" onclick="SS()" disabled>💬 Send SOS via SMS</button>
+      <div id="gformats"></div>
+    `;
+    window._gps = null;
+    window.GG = () => {
+      document.getElementById('gc').textContent='Locating...';
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const {latitude:lat,longitude:lon,accuracy:acc}=pos.coords;
+        window._gps={lat,lon,acc:Math.round(acc)};
+        const toDMS=(deg,isLat)=>{const d=Math.floor(Math.abs(deg)),m=Math.floor((Math.abs(deg)-d)*60),s=((Math.abs(deg)-d-m/60)*3600).toFixed(1),dir=isLat?(deg>=0?'N':'S'):(deg>=0?'E':'W');return `${d}°${m}'${s}"${dir}`;};
+        document.getElementById('gc').textContent=`${lat.toFixed(6)}°\n${lon.toFixed(6)}°`;
+        document.getElementById('ga').textContent=`± ${Math.round(acc)} meters accuracy`;
+        const gs=document.getElementById('gs');
+        gs.textContent=acc<20?'✅ High accuracy':acc<100?'⚠ Moderate — go outside':'🔴 Low accuracy';
+        gs.style.color=acc<20?'var(--green)':acc<100?'var(--yellow)':'var(--red)';
+        document.getElementById('copybtn').disabled=false;
+        document.getElementById('smsbtn').disabled=false;
+        document.getElementById('gformats').innerHTML=`
+          <hr>
+          <div class="sec">All Formats</div>
+          <div class="card"><div class="card-hdr"><span class="card-name">Decimal</span></div><div class="card-body" style="font-family:monospace">${lat.toFixed(6)}, ${lon.toFixed(6)}</div></div>
+          <div class="card"><div class="card-hdr"><span class="card-name">Degrees/Min/Sec</span></div><div class="card-body" style="font-family:monospace">${toDMS(lat,true)}, ${toDMS(lon,false)}</div></div>
+          <div class="card"><div class="card-hdr"><span class="card-name">Google Maps</span></div><div class="card-body" style="font-family:monospace;word-break:break-all">maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)}</div></div>
+        `;
+      },err=>{document.getElementById('gc').textContent='Location denied';document.getElementById('gs').textContent='Enable location permission';document.getElementById('gs').style.color='var(--red)';},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+    };
+    window.CC = () => {
+      if(!window._gps) return;
+      const {lat,lon,acc}=window._gps;
+      navigator.clipboard.writeText(`${lat.toFixed(6)}, ${lon.toFixed(6)} (±${acc}m)`).then(()=>{
+        document.getElementById('copybtn').textContent='✅ Copied!';
+        setTimeout(()=>document.getElementById('copybtn').textContent='📋 Copy Coordinates',2000);
+      });
+    };
+    window.SS = () => {
+      if(!window._gps) return;
+      const {lat,lon,acc}=window._gps;
+      window.location.href=`sms:?body=${encodeURIComponent(`🆘 SOS - I NEED HELP. Location: ${lat.toFixed(6)}, ${lon.toFixed(6)} (±${acc}m). maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)}`)}`;
+    };
+    window.GG(); return;
+  }
+
+  if (key === 'rsos') {
+    let flashOn=false, strobeInt=null, alarmOn=false, alarmCtx=null, morseInt=null;
+    el.innerHTML = `
+      <div class="abox ar">SOS = ··· — — — ··· (3 short, 3 long, 3 short)</div>
+      <div class="sos-btn" id="sosb" onclick="SF()">🔦</div>
+      <div id="sosl" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:16px">Tap for SOS Morse Flashlight</div>
+      <button class="btn btn-r" id="strobebtn" onclick="SB()">⚡ STROBE LIGHT</button>
+      <button class="btn btn-r" id="alarmbtn" onclick="SA()" style="background:linear-gradient(135deg,#cc0000,#ff0000);font-size:18px;padding:18px;letter-spacing:2px">🔊 MAX ALARM — PRESS TO ACTIVATE</button>
+      <div class="abox ab" style="margin-top:4px">Whistle: 3 short blasts = SOS. Repeat every 60 sec.</div>
+    `;
+    window.SF = () => {
+      flashOn=!flashOn;
+      document.getElementById('sosb').classList.toggle('on',flashOn);
+      document.getElementById('sosl').textContent=flashOn?'🔴 ACTIVE — SOS broadcasting':'Tap for SOS Morse Flashlight';
+      document.getElementById('sosl').style.color=flashOn?'var(--red)':'var(--muted)';
+      if(flashOn){let i=0;morseInt=setInterval(()=>{document.body.style.background=i%2===0?'#fff':'var(--bg)';i++;if(i>17)i=0;},150);}
+      else{clearInterval(morseInt);document.body.style.background='var(--bg)';}
+    };
+    window.SB = () => {
+      const btn=document.getElementById('strobebtn');
+      if(strobeInt){clearInterval(strobeInt);strobeInt=null;document.body.style.background='var(--bg)';btn.textContent='⚡ STROBE LIGHT';}
+      else{let t=true;strobeInt=setInterval(()=>{document.body.style.background=t?'#fff':'var(--bg)';t=!t;},80);btn.textContent='⏹ STOP STROBE';}
+    };
+    window.SA = () => {
+      alarmOn=!alarmOn;
+      const btn=document.getElementById('alarmbtn');
+      btn.textContent=alarmOn?'⏹ STOP ALARM':'🔊 MAX ALARM — PRESS TO ACTIVATE';
+      if(alarmOn){
+        alarmCtx=new(window.AudioContext||window.webkitAudioContext)();
+        
+        // Compressor to maximize loudness
+        const compressor=alarmCtx.createDynamicsCompressor();
+        compressor.threshold.value=-6;
+        compressor.knee.value=0;
+        compressor.ratio.value=20;
+        compressor.attack.value=0;
+        compressor.release.value=0.1;
+        
+        const masterGain=alarmCtx.createGain();
+        masterGain.gain.value=10.0; // Max overdrive
+        masterGain.connect(compressor);
+        compressor.connect(alarmCtx.destination);
+
+        // SOS Morse: ... --- ... (3 short 3 long 3 short)
+        // short=0.15s, long=0.45s, gap=0.1s, between letters=0.3s
+        const DOT=0.15, DASH=0.45, GAP=0.1, LGAP=0.3, CYCLE=0.3;
+        
+        const playTone=(freq, startTime, duration)=>{
+          const o=alarmCtx.createOscillator();
+          const g=alarmCtx.createGain();
+          o.connect(g); g.connect(masterGain);
+          o.frequency.value=freq;
+          o.type='square'; // Square wave = louder/harsher
+          g.gain.setValueAtTime(0,startTime);
+          g.gain.linearRampToValueAtTime(1,startTime+0.01);
+          g.gain.setValueAtTime(1,startTime+duration-0.01);
+          g.gain.linearRampToValueAtTime(0,startTime+duration);
+          o.start(startTime); o.stop(startTime+duration);
+        };
+
+        const playSOS=(startTime)=>{
+          let t=startTime;
+          const freq=1400; // High freq for max attention
+          // S: ...
+          playTone(freq,t,DOT); t+=DOT+GAP;
+          playTone(freq,t,DOT); t+=DOT+GAP;
+          playTone(freq,t,DOT); t+=DOT+LGAP;
+          // O: ---
+          playTone(freq,t,DASH); t+=DASH+GAP;
+          playTone(freq,t,DASH); t+=DASH+GAP;
+          playTone(freq,t,DASH); t+=DASH+LGAP;
+          // S: ...
+          playTone(freq,t,DOT); t+=DOT+GAP;
+          playTone(freq,t,DOT); t+=DOT+GAP;
+          playTone(freq,t,DOT); t+=DOT+CYCLE;
+          return t;
+        };
+
+        // Play SOS continuously for 60 seconds
+        let t=alarmCtx.currentTime;
+        const endTime=t+60;
+        while(t<endTime){ t=playSOS(t); }
+
+        // Auto-stop after 60s
+        setTimeout(()=>{
+          if(alarmOn){
+            alarmOn=false;
+            if(alarmCtx){alarmCtx.close();alarmCtx=null;}
+            btn.textContent='🔊 MAX ALARM — PRESS TO ACTIVATE';
+          }
+        },61000);
+
+        // Vibrate SOS pattern repeatedly
+        if(navigator.vibrate){
+          const sosVib=[150,100,150,100,150,200,400,100,400,100,400,200,150,100,150,100,150,500];
+          let vibCount=0;
+          const vibLoop=setInterval(()=>{
+            if(!alarmOn||vibCount>10){clearInterval(vibLoop);return;}
+            navigator.vibrate(sosVib);
+            vibCount++;
+          },sosVib.reduce((a,b)=>a+b,0)+100);
+        }
+
+      } else { if(alarmCtx){alarmCtx.close();alarmCtx=null;} }
+    };
+    window._stopSOS = () => {
+      flashOn=false; alarmOn=false;
+      clearInterval(morseInt); clearInterval(strobeInt);
+      if(alarmCtx){alarmCtx.close();alarmCtx=null;}
+      document.body.style.background='var(--bg)';
+    }; return;
+  }
+
+  if (key === 'rdead') {
+    let dmsInterval=null, dmsSeconds=0, dmsRunning=false, dmsWarning=false, dmsGPS=null;
+    const DMS_EMAIL='baranov.m@academy.com.ua';
+    el.innerHTML = `
+      <div class="abox ar">🛡️ Dead Man's Switch — if you don't check in, emergency alert is sent automatically.</div>
+      
+      <div class="sec">SET CHECK-IN INTERVAL</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div onclick="setDMS(5)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms5">
+          <div style="font-size:22px;font-weight:900;color:var(--yellow)">5</div>
+          <div style="font-size:11px;color:var(--muted)">MIN</div>
+        </div>
+        <div onclick="setDMS(10)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms10">
+          <div style="font-size:22px;font-weight:900;color:var(--yellow)">10</div>
+          <div style="font-size:11px;color:var(--muted)">MIN</div>
+        </div>
+        <div onclick="setDMS(15)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms15">
+          <div style="font-size:22px;font-weight:900;color:var(--yellow)">15</div>
+          <div style="font-size:11px;color:var(--muted)">MIN</div>
+        </div>
+        <div onclick="setDMS(30)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms30">
+          <div style="font-size:22px;font-weight:900;color:var(--orange,#ff8c00)">30</div>
+          <div style="font-size:11px;color:var(--muted)">MIN</div>
+        </div>
+        <div onclick="setDMS(60)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms60">
+          <div style="font-size:22px;font-weight:900;color:var(--green)">60</div>
+          <div style="font-size:11px;color:var(--muted)">MIN</div>
+        </div>
+        <div onclick="setDMS(120)" class="card" style="text-align:center;cursor:pointer;padding:12px" id="dms120">
+          <div style="font-size:22px;font-weight:900;color:var(--green)">2H</div>
+          <div style="font-size:11px;color:var(--muted)">HOUR</div>
+        </div>
+      </div>
+
+      <div id="dms-selected" class="abox ab" style="text-align:center">Select an interval above to begin</div>
+
+      <div style="text-align:center;padding:16px 0;display:none" id="dms-timer-section">
+        <div id="dms-time" style="font-size:64px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--green);letter-spacing:-2px">00:00</div>
+        <div id="dms-label" style="font-size:13px;color:var(--muted);margin-top:4px">Time until next check-in</div>
+      </div>
+
+      <button class="btn btn-g" id="dms-checkin" style="display:none;font-size:20px;padding:20px;letter-spacing:1px" onclick="dmsCheckIn()">
+        ✅ I'M SAFE — CHECK IN
+      </button>
+
+      <button class="btn btn-r" id="dms-stop" style="display:none" onclick="dmsStop()">⏹ STOP MONITORING</button>
+
+      <hr>
+      <div class="card" style="border-color:rgba(255,77,28,0.2)">
+        <div style="font-size:11px;color:var(--red);letter-spacing:2px;font-weight:700;margin-bottom:8px">⚠ IF YOU DON'T CHECK IN:</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">
+          1. Timer runs out → <strong style="color:var(--yellow)">+1 minute warning</strong> with alarm<br>
+          2. Still no response → <strong style="color:var(--red)">Emergency email sent</strong> to:<br>
+          <span style="font-family:monospace;color:var(--blue);font-size:12px">${DMS_EMAIL}</span><br>
+          📍 Your GPS coordinates + SOS alert
+        </div>
+      </div>
+      <div id="dms-sent-status"></div>
+    `;
+
+    let dmsInterval2=null, dmsMins=0;
+
+    window.setDMS = (mins) => {
+      dmsMins=mins;
+      document.querySelectorAll('[id^="dms"]').forEach(e=>{if(e.classList.contains('card'))e.style.borderColor='var(--border)';});
+      const sel=document.getElementById('dms'+mins);
+      if(sel)sel.style.borderColor='var(--blue)';
+      document.getElementById('dms-selected').textContent=`✅ Interval set: every ${mins} minutes. Press START to begin.`;
+      document.getElementById('dms-selected').className='abox ag';
+      // Show start button
+      document.getElementById('dms-checkin').style.display='block';
+      document.getElementById('dms-checkin').textContent='▶ START MONITORING';
+      document.getElementById('dms-checkin').onclick=dmsStart;
+    };
+
+    function dmsStart() {
+      if(!dmsMins){alert('Select an interval first');return;}
+      // Get GPS first
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+          dmsGPS={lat:pos.coords.latitude.toFixed(6),lon:pos.coords.longitude.toFixed(6),acc:Math.round(pos.coords.accuracy)};
+        },()=>{dmsGPS=null;},{enableHighAccuracy:true,timeout:10000});
+      }
+      dmsRunning=true; dmsWarning=false;
+      dmsSeconds=dmsMins*60;
+      document.getElementById('dms-timer-section').style.display='block';
+      document.getElementById('dms-checkin').textContent='✅ I\'M SAFE — CHECK IN';
+      document.getElementById('dms-checkin').onclick=dmsCheckIn;
+      document.getElementById('dms-checkin').style.background='var(--green)';
+      document.getElementById('dms-checkin').style.color='#000';
+      document.getElementById('dms-stop').style.display='block';
+      document.getElementById('dms-selected').textContent='🟢 Monitoring active. Press CHECK IN before timer runs out!';
+      document.getElementById('dms-selected').className='abox ag';
+      dmsInterval2=setInterval(dmsTickFn,1000);
+    }
+    window.dmsStart=dmsStart;
+
+    function dmsTickFn(){
+      dmsSeconds--;
+      const m=String(Math.floor(Math.abs(dmsSeconds)/60)).padStart(2,'0');
+      const s=String(Math.abs(dmsSeconds)%60).padStart(2,'0');
+      const tv=document.getElementById('dms-time');
+      const tl=document.getElementById('dms-label');
+      if(dmsSeconds>30){
+        tv.style.color='var(--green)';
+        tv.textContent=m+':'+s;
+        tl.textContent='Time until next check-in';
+      } else if(dmsSeconds>0){
+        tv.style.color='var(--yellow)';
+        tv.textContent=m+':'+s;
+        tl.textContent='⚠ Check in soon!';
+        if(navigator.vibrate)navigator.vibrate([100,100]);
+      } else if(dmsSeconds===0 && !dmsWarning){
+        // Grace period — 60 seconds
+        dmsWarning=true;
+        tv.style.color='var(--red)';
+        tl.textContent='🚨 LAST CHANCE — 60 seconds before emergency alert!';
+        document.getElementById('dms-selected').textContent='🚨 CHECK IN NOW or emergency alert will be sent!';
+        document.getElementById('dms-selected').className='abox ar';
+        document.getElementById('dms-checkin').style.background='var(--red)';
+        document.getElementById('dms-checkin').style.animation='sosp 0.5s infinite';
+        dmsSeconds=60;
+        // Alarm
+        try{
+          const ctx=new(window.AudioContext||window.webkitAudioContext)();
+          for(let i=0;i<5;i++){
+            setTimeout(()=>{
+              const o=ctx.createOscillator(),g=ctx.createGain();
+              o.connect(g);g.connect(ctx.destination);
+              o.frequency.value=1200;g.gain.value=1;
+              o.start();o.stop(ctx.currentTime+0.3);
+            },i*400);
+          }
+        }catch(e){}
+        if(navigator.vibrate)navigator.vibrate([500,200,500,200,500]);
+      } else if(dmsSeconds<=0 && dmsWarning){
+        // Send email SOS
+        clearInterval(dmsInterval2);
+        dmsRunning=false;
+        tv.textContent='SOS';
+        tv.style.color='var(--red)';
+        tl.textContent='Emergency alert sent!';
+        dmsSendEmail();
+      }
+    }
+
+    function dmsCheckIn(){
+      if(!dmsRunning){dmsStart();return;}
+      dmsWarning=false;
+      dmsSeconds=dmsMins*60;
+      document.getElementById('dms-time').style.color='var(--green)';
+      document.getElementById('dms-label').textContent='✅ Checked in! Timer reset.';
+      document.getElementById('dms-selected').textContent='🟢 Check-in confirmed! Keep monitoring.';
+      document.getElementById('dms-selected').className='abox ag';
+      document.getElementById('dms-checkin').style.background='var(--green)';
+      document.getElementById('dms-checkin').style.animation='none';
+      if(navigator.vibrate)navigator.vibrate([100]);
+      // Re-get GPS
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+          dmsGPS={lat:pos.coords.latitude.toFixed(6),lon:pos.coords.longitude.toFixed(6),acc:Math.round(pos.coords.accuracy)};
+        },()=>{},{enableHighAccuracy:true,timeout:10000});
+      }
+    }
+    window.dmsCheckIn=dmsCheckIn;
+
+    function dmsStop(){
+      clearInterval(dmsInterval2);
+      dmsRunning=false; dmsWarning=false;
+      document.getElementById('dms-timer-section').style.display='none';
+      document.getElementById('dms-stop').style.display='none';
+      document.getElementById('dms-checkin').style.display='none';
+      document.getElementById('dms-selected').textContent='Monitoring stopped.';
+      document.getElementById('dms-selected').className='abox ay';
+    }
+    window.dmsStop=dmsStop;
+
+    function dmsSendEmail(){
+      const gps=dmsGPS?`${dmsGPS.lat}, ${dmsGPS.lon} (±${dmsGPS.acc}m)`:'GPS not available';
+      const time=new Date().toLocaleString();
+
+      const doSend=()=>{
+        emailjs.init('dqRkTRnAcLHTJoY4Z');
+        emailjs.send('service_jadw5wd','template_lny33do',{
+          email:'baranov.m@academy.com.ua',
+          time:time,
+          gps:gps
+        }).then(()=>{
+          document.getElementById('dms-sent-status').innerHTML=`
+            <div class="abox ag" style="margin-top:12px">
+              ✅ <strong>Emergency email sent!</strong><br>
+              To: <span style="font-family:monospace">baranov.m@academy.com.ua</span><br>
+              📍 GPS: ${gps}<br>
+              ⏰ Time: ${time}
+            </div>
+          `;
+        }).catch(err=>{
+          document.getElementById('dms-sent-status').innerHTML=`
+            <div class="abox ar" style="margin-top:12px">❌ Email failed: ${JSON.stringify(err)}<br><small>Check internet connection</small></div>
+          `;
+        });
+      };
+
+      if(!window.emailjs){
+        const script=document.createElement('script');
+        script.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+        script.onload=doSend;
+        document.head.appendChild(script);
+      } else { doSend(); }
+
+      document.getElementById('dms-time').textContent='SOS';
+      document.getElementById('dms-time').style.color='var(--red)';
+      document.getElementById('dms-label').textContent='🚨 Emergency alert sent!';
+    }
+    return;
+  }
+
+  if (key === 'rmayday') {
+    el.innerHTML = `
+      <div class="abox ab">Say MAYDAY 3 times, then read this script slowly and clearly.</div>
+      ${[
+        {t:'MAYDAY MAYDAY MAYDAY',b:'Say exactly 3 times to establish emergency priority on the channel.'},
+        {t:'This is [YOUR NAME]',b:'Identify yourself clearly. State your name or vessel name.'},
+        {t:'My position is...',b:'GPS coordinates OR: "500m north of the bridge near the river crossing."'},
+        {t:'Nature of emergency',b:'"We have an injured person." / "We are trapped." / "We need rescue."'},
+        {t:'Number of people',b:'"There are 4 people in our group." State any injuries.'},
+        {t:'What help is needed',b:'Describe what you need: medical, evacuation, food. Any landmarks visible.'},
+        {t:'OVER',b:'End with "OVER" to signal you are waiting for response. Repeat every 5 minutes.'},
+      ].map((s,i)=>`<div class="step"><div class="sn" style="background:rgba(41,182,246,0.15);color:var(--blue)">${i+1}</div><div class="st"><div class="st-title">${s.t}</div><div class="st-text">${s.b}</div></div></div>`).join('')}
+      <button class="btn btn-b" onclick="speak('MAYDAY, MAYDAY, MAYDAY. This is [your name]. My position is [location]. We have an emergency: [describe]. There are [number] people. We need immediate assistance. OVER.')">🔊 Read Script Aloud</button>
+    `; return;
+  }
+
+  if (key === 'rsignals') {
+    el.innerHTML = `<div class="abox ay">⚠ Make signals at least 10 meters wide. Use rocks, logs, or dig in snow/sand.</div>` +
+    [
+      {s:'✖ X',m:'Need medical assistance',n:'Most critical signal. Make this first and as large as possible.'},
+      {s:'↑ Arrow',m:'Travelling in this direction',n:'Point arrow in your direction of travel.'},
+      {s:'F',m:'Need food and water',n:'Form the letter F with rocks or logs.'},
+      {s:'△ Three fires',m:'Safe helicopter landing zone',n:'Three fires in triangle formation — visible from air.'},
+      {s:'LL',m:'All is well / safe here',n:'Two parallel lines — signal that group is safe.'},
+      {s:'|||',m:'Need help — cannot travel',n:'Three parallel lines — cannot walk to safety.'},
+    ].map(s=>`<div class="card"><div class="card-hdr"><span style="font-size:22px;font-weight:900">${s.s}</span><span class="tag tc">AIR SIGNAL</span></div><div style="font-weight:700;font-size:14px;margin-bottom:4px">${s.m}</div><div class="card-body">${s.n}</div></div>`).join('');
+    return;
+  }
+
+  if (key === 'rfreq') {
+    el.innerHTML = `<div class="abox ab">📻 Try 112 on any phone first. These are for handheld radios.</div>` +
+    [
+      {n:'Emergency — Universal',f:'112',t:'Works without SIM card, on any network. Always try this first.'},
+      {n:'Marine/Aviation Distress',f:'156.800 MHz (Ch 16)',t:'Monitored 24/7 worldwide by coast guard and aviation.'},
+      {n:'Aviation Emergency',f:'121.500 MHz',t:'International aeronautical distress. Monitored by all aircraft.'},
+      {n:'Amateur Radio',f:'144.500 MHz',t:'International ham radio calling frequency. Active during emergencies.'},
+      {n:'FRS/GMRS Emergency',f:'462.675 MHz (Ch 1)',t:'Consumer walkie-talkie emergency channel.'},
+      {n:'CB Radio Emergency',f:'27.065 MHz (Ch 9)',t:'CB channel 9 is designated emergency channel worldwide.'},
+    ].map(f=>`<div class="card"><div class="card-hdr"><span class="card-name">${f.n}</span></div><div style="font-size:20px;font-weight:900;color:var(--blue);margin-bottom:6px;font-family:monospace">${f.f}</div><div class="card-body">${f.t}</div></div>`).join('');
+    return;
+  }
+}
+
+// ── AI GUIDE ──
+async function askAI() {
+  const situation = document.getElementById('ai-situation').value.trim();
+  if (!situation) { alert('Please describe your situation first.'); return; }
+  const location = document.getElementById('ai-location').value;
+  const people = document.getElementById('ai-people').value;
+
+  document.getElementById('ai-result').innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-top:14px">
+      <div style="font-size:28px;margin-bottom:10px;animation:blink 1s infinite">🤖</div>
+      <div style="font-size:14px;font-weight:700;color:var(--blue)">AI is analyzing your situation...</div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are an emergency response expert. Someone needs immediate help.
+
+Situation: ${situation}
+Location type: ${location}
+Number of people: ${people}
+
+Give clear, numbered step-by-step instructions for what they should do RIGHT NOW. Be direct, practical, and prioritize safety. Format as:
+
+IMMEDIATE ACTIONS (next 5 minutes):
+1. ...
+2. ...
+
+SHORT-TERM ACTIONS (next 30 minutes):
+1. ...
+2. ...
+
+IMPORTANT WARNINGS:
+- ...
+
+Keep it concise and actionable. No fluff.`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const text = data.content.map(i => i.text || '').join('');
+
+    document.getElementById('ai-result').innerHTML = `
+      <div style="background:var(--bg2);border:1px solid rgba(41,182,246,0.3);border-radius:14px;padding:16px;margin-top:14px">
+        <div style="font-size:11px;color:var(--blue);letter-spacing:2px;font-weight:700;margin-bottom:12px">🤖 AI EMERGENCY INSTRUCTIONS</div>
+        <div style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)">${text}</div>
+      </div>
+      <button class="btn btn-gh" style="margin-top:10px" onclick="askAI()">🔄 Ask Again</button>
+      <button class="btn btn-gh" onclick="speakAIGuide()" style="margin-top:0">🔊 Read Aloud</button>
+    `;
+    window._aiText = text;
+  } catch(err) {
+    document.getElementById('ai-result').innerHTML = `
+      <div class="abox ar" style="margin-top:14px">❌ Failed: ${err.message}<br><small>Check internet connection</small></div>
+    `;
+  }
+}
+
+function speakAIGuide() {
+  if (window._aiText && 'speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(window._aiText);
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+  }
+}
+async function askMedAI() {
+  const situation = document.getElementById('med-situation').value.trim();
+  if (!situation) { alert('Please describe the symptoms first.'); return; }
+  const patient = document.getElementById('med-patient').value;
+  const resources = document.getElementById('med-resources').value;
+
+  document.getElementById('med-result').innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-top:14px">
+      <div style="font-size:28px;margin-bottom:10px;animation:blink 1s infinite">🤖</div>
+      <div style="font-size:14px;font-weight:700;color:var(--red)">AI is analyzing symptoms...</div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are an emergency medical advisor in a disaster scenario.
+
+Patient: ${patient}
+Symptoms/Injury: ${situation}
+Available resources: ${resources}
+
+Analyze and respond with:
+
+🔴 SEVERITY: [CRITICAL / SERIOUS / MODERATE / MINOR]
+⚠️ TYPE: [Poisoning / Animal bite / Snake bite / Allergic reaction / Bleeding / Fracture / Burn / Scratch / Bruise / Other]
+
+IMMEDIATE ACTIONS (do RIGHT NOW):
+1. ...
+2. ...
+
+TREATMENT STEPS:
+1. ...
+
+⚠️ WARNING SIGNS (get help immediately if):
+- ...
+
+🚫 DO NOT:
+- ...
+
+Be direct and practical. Life may depend on this.`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const text = data.content.map(i => i.text || '').join('');
+
+    document.getElementById('med-result').innerHTML = `
+      <div style="background:var(--bg2);border:1px solid rgba(255,77,28,0.3);border-radius:14px;padding:16px;margin-top:14px">
+        <div style="font-size:11px;color:var(--red);letter-spacing:2px;font-weight:700;margin-bottom:12px">🤖 AI MEDICAL INSTRUCTIONS</div>
+        <div style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)">${text}</div>
+      </div>
+      <div class="abox ar" style="margin-top:10px">⚠ Always seek real medical help when possible. Call 112.</div>
+      <button class="btn btn-gh" onclick="speakMedAI()">🔊 Read Aloud</button>
+    `;
+    window._medText = text;
+  } catch(err) {
+    document.getElementById('med-result').innerHTML = `
+      <div class="abox ar" style="margin-top:14px">❌ Failed: ${err.message}</div>
+    `;
+  }
+}
+
+function speakMedAI() {
+  if (window._medText && 'speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(window._medText);
+    u.rate = 0.85; speechSynthesis.speak(u);
+  }
+}
+
+async function analyzePlant(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const imgEl = document.getElementById('plant-img');
+    imgEl.src = e.target.result;
+    document.getElementById('plant-preview').style.display = 'block';
+
+    // Update upload area
+    document.getElementById('upload-area').innerHTML = `
+      <div style="font-size:14px;color:var(--yellow);font-weight:700">📷 Photo loaded — analyzing...</div>
+    `;
+
+    // Show loading
+    document.getElementById('plant-result').innerHTML = `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:32px;margin-bottom:12px;animation:blink 1s infinite">🔍</div>
+        <div style="font-size:15px;font-weight:700;color:var(--yellow)">Analyzing plant...</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Identifying species, toxicity & safety</div>
+      </div>
+    `;
+
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: { type: 'base64', media_type: file.type, data: base64 }
+              },
+              {
+                type: 'text',
+                text: `You are a wilderness survival expert and botanist. Analyze this image and identify if it shows a plant, mushroom, berry, fruit, or other organism. 
+
+Respond ONLY in this exact JSON format, no other text:
+{
+  "name": "Common name of the plant/mushroom/berry",
+  "scientific": "Scientific name if known",
+  "edible": "YES" | "NO" | "CAUTION" | "UNKNOWN",
+  "confidence": "HIGH" | "MEDIUM" | "LOW",
+  "danger_level": "SAFE" | "CAUTION" | "DANGEROUS" | "DEADLY",
+  "summary": "2-3 sentence summary of what this is",
+  "edibility_details": "Specific details about edibility — which parts are safe/unsafe, preparation needed, look-alike dangers",
+  "warning": "Any critical warnings or null if none",
+  "survival_tip": "One practical survival tip about this plant"
+}`
+              }
+            ]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const text = data.content.map(i => i.text || '').join('');
+      const clean = text.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      showPlantResult(result);
+    } catch (err) {
+      document.getElementById('plant-result').innerHTML = `
+        <div class="abox ar">❌ Analysis failed. Check internet connection and try again.<br><small style="opacity:0.7">${err.message}</small></div>
+        <button class="btn btn-gh" onclick="document.getElementById('plant-input').click()">Try Again</button>
+      `;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPlantResult(r) {
+  const edibleColors = { YES: 'var(--green)', NO: 'var(--red)', CAUTION: 'var(--yellow)', UNKNOWN: 'var(--muted)' };
+  const edibleBg = { YES: 'rgba(0,230,118,0.08)', NO: 'rgba(255,77,28,0.08)', CAUTION: 'rgba(255,214,0,0.08)', UNKNOWN: 'rgba(138,144,153,0.08)' };
+  const edibleIcon = { YES: '✅', NO: '☠️', CAUTION: '⚠️', UNKNOWN: '❓' };
+  const dangerClass = { SAFE: 'ag', CAUTION: 'ay', DANGEROUS: 'ar', DEADLY: 'ar' };
+  const confColor = { HIGH: 'var(--green)', MEDIUM: 'var(--yellow)', LOW: 'var(--red)' };
+
+  document.getElementById('plant-result').innerHTML = `
+    <!-- VERDICT -->
+    <div style="background:${edibleBg[r.edible]};border:2px solid ${edibleColors[r.edible]};border-radius:16px;padding:20px;margin-bottom:12px;text-align:center">
+      <div style="font-size:44px;margin-bottom:6px">${edibleIcon[r.edible]}</div>
+      <div style="font-size:26px;font-weight:900;color:${edibleColors[r.edible]}">${r.edible === 'YES' ? 'EDIBLE' : r.edible === 'NO' ? 'DO NOT EAT' : r.edible === 'CAUTION' ? 'EAT WITH CAUTION' : 'UNKNOWN'}</div>
+      <div style="font-size:18px;font-weight:800;margin-top:6px">${r.name}</div>
+      <div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:2px">${r.scientific || ''}</div>
+      <div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+        <span class="tag ${r.edible==='YES'?'ts':r.edible==='NO'?'td':'tc'}">${r.danger_level}</span>
+        <span class="tag" style="background:rgba(255,255,255,0.06);color:${confColor[r.confidence]}">CONFIDENCE: ${r.confidence}</span>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-name">🌿 About this plant</span></div>
+      <div class="card-body">${r.summary}</div>
+    </div>
+
+    <!-- EDIBILITY -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-name">🍽️ Edibility Details</span></div>
+      <div class="card-body">${r.edibility_details}</div>
+    </div>
+
+    <!-- WARNING -->
+    ${r.warning ? `<div class="abox ar">⚠️ <strong>Warning:</strong> ${r.warning}</div>` : ''}
+
+    <!-- SURVIVAL TIP -->
+    <div class="card" style="border-color:rgba(41,182,246,0.2)">
+      <div class="card-hdr"><span class="card-name" style="color:var(--blue)">💡 Survival Tip</span></div>
+      <div class="card-body">${r.survival_tip}</div>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="abox ay" style="margin-top:4px">⚠ AI analysis can be wrong. Never eat any plant solely based on this result. When in doubt — do not eat it.</div>
+
+    <!-- NEW PHOTO -->
+    <button class="btn btn-gh" onclick="
+      document.getElementById('plant-input').value='';
+      document.getElementById('plant-preview').style.display='none';
+      document.getElementById('plant-result').innerHTML='';
+      document.getElementById('upload-area').innerHTML='<div style=font-size:48px;margin-bottom:10px>📷</div><div style=font-size:16px;font-weight:700;color:var(--yellow)>Take or Upload Photo</div><div style=font-size:12px;color:var(--muted);margin-top:6px>Plants · Mushrooms · Berries · Fruits</div>';
+    ">📷 Analyze Another Plant</button>
+  `;
+}
+// ── THEMES ──
+const themes = {
+  dark:  { '--bg':'#0d0f12','--bg2':'#13171c','--bg3':'#1a1f26','--border':'rgba(255,255,255,0.07)','--text':'#eceef1','--muted':'#7a8290' },
+  black: { '--bg':'#000000','--bg2':'#0a0a0a','--bg3':'#111111','--border':'rgba(255,255,255,0.05)','--text':'#ffffff','--muted':'#666666' },
+  camo:  { '--bg':'#1a2010','--bg2':'#1e2a14','--bg3':'#253018','--border':'rgba(180,210,100,0.15)','--text':'#c8d8a0','--muted':'#8a9870' },
+  red:   { '--bg':'#0f0303','--bg2':'#1a0505','--bg3':'#220808','--border':'rgba(255,80,80,0.12)','--text':'#ffd0d0','--muted':'#cc6666' },
+  night: { '--bg':'#05050f','--bg2':'#0a0a1e','--bg3':'#10102a','--border':'rgba(100,100,255,0.15)','--text':'#d0d0ff','--muted':'#6666bb' },
+  sand:  { '--bg':'#18120a','--bg2':'#1e1808','--bg3':'#261f0e','--border':'rgba(210,170,80,0.15)','--text':'#e8d4a0','--muted':'#a07840' },
+};
+
+function setTheme(name) {
+  const t = themes[name];
+  const root = document.documentElement;
+  Object.entries(t).forEach(([k,v]) => root.style.setProperty(k, v));
+  localStorage.setItem('theme', name);
+  document.querySelectorAll('[id^="theme-"]').forEach(el => el.style.borderWidth = '1px');
+  const sel = document.getElementById('theme-'+name);
+  if (sel) sel.style.borderWidth = '3px';
+}
+
+// ── LANGUAGE ──
+const i18n = {
+  en: {
+    settings:'Settings', lang_label:'Language', theme_label:'Theme',
+    eyebrow:'⚠ Emergency Response System',
+    m1_num:'01 — GUIDES', m1_title:'Disaster Guides', m1_desc:'Flood, fire, earthquake, chemical',
+    m2_num:'02 — MEDICAL', m2_title:'Medicine', m2_desc:'First aid, triage, vitals',
+    m3_num:'03 — FOOD', m3_title:'Plant ID', m3_desc:'Photo → safe to eat?',
+    m4_num:'04 — SOS', m4_title:'Emergency Rescue', m4_desc:'GPS, signals, MAYDAY',
+    g_offline:'Offline Guides', g_offline_desc:'Flood, fire, earthquake — no internet needed',
+    g_ai:'AI Guide', g_ai_desc:'Describe situation — AI gives instructions',
+    med_offline:'Offline Medical Guides', med_offline_desc:'CPR, triage, bleeding, burns',
+    med_ai:'AI Medical Advisor', med_ai_desc:'Describe or photo — AI analyzes',
+    med_ai_hdr:'AI Medical Advisor',
+    med_warn:'⚠ NOT a replacement for real medical help. Call 112 for emergencies.',
+    tab_text:'✍️ Describe', tab_photo:'📷 Photo',
+    med_sym:'Describe symptoms or injury',
+    med_ph:'Example: Snake bite on left arm, swelling, pain...',
+    med_pat:'Patient', med_res:'Resources available',
+    med_btn:'🤖 GET MEDICAL INSTRUCTIONS',
+    med_upload:'Take or Upload Photo of Wound',
+    med_upload_sub:'Wounds · Burns · Rashes · Bites · Injuries',
+    plant_warn:'⚠ AI identifies plants & mushrooms. Never eat anything you are not 100% sure about.',
+    plant_upload:'Take or Upload Photo',
+    plant_sub:'Plants · Mushrooms · Berries · Fruits',
+    rescue_title:'Emergency Rescue',
+    // Offline guides titles
+    flood_t:'Flood', fire_t:'Fire & Wildfire', quake_t:'Earthquake',
+    chem_t:'Chemical / Gas Leak', gokit_t:'Go-Bag Checklist', evac_t:'Evacuation Routes',
+    flood_d:'Evacuation & water safety', fire_d:'Escape routes & smoke',
+    quake_d:'Drop, cover, hold protocol', chem_d:'Decontamination & shelter',
+    gokit_d:'72-hour emergency kit', evac_d:'Routes by disaster type',
+    // Med offline
+    fa_t:'First Aid Guide', fa_d:'CPR, bleeding, burns, choking',
+    vit_t:'Vital Signs Checker', vit_d:'Pulse, breathing assessment',
+    tri_t:'Triage Color Coder', tri_d:'Prioritize casualties',
+    tor_t:'Tourniquet Timer', tor_d:'Track time — max 2 hours',
+    hyp_t:'Hypothermia Detector', hyp_d:'Stage & treatment guide',
+    mc_t:'My Medical Card', mc_d:'Blood type, allergies, contacts',
+    // Rescue
+    gps_t:'Share My Position', gps_d:'GPS coordinates + SMS',
+    sos_t:'SOS Signal', sos_d:'Flashlight morse + alarm',
+    may_t:'MAYDAY Script', may_d:'Radio rescue protocol',
+    sig_t:'Ground Signals', sig_d:'Signs for aircraft',
+    frq_t:'Emergency Frequencies', frq_d:'Police, fire, aviation',
+  },
+  ro: {
+    settings:'Setări', lang_label:'Limbă', theme_label:'Temă',
+    eyebrow:'⚠ Sistem de Răspuns la Urgențe',
+    m1_num:'01 — GHIDURI', m1_title:'Ghiduri Dezastre', m1_desc:'Inundații, foc, cutremur',
+    m2_num:'02 — MEDICAL', m2_title:'Medicină', m2_desc:'Prim ajutor, triaj, semne vitale',
+    m3_num:'03 — MÂNCARE', m3_title:'ID Plante', m3_desc:'Foto → sigur de mâncat?',
+    m4_num:'04 — SOS', m4_title:'Salvare Urgentă', m4_desc:'GPS, semnale, MAYDAY',
+    g_offline:'Ghiduri Offline', g_offline_desc:'Inundații, foc, cutremur — fără internet',
+    g_ai:'Ghid AI', g_ai_desc:'Descrie situația — AI dă instrucțiuni',
+    med_offline:'Ghiduri Medicale Offline', med_offline_desc:'CPR, triaj, sângerare, arsuri',
+    med_ai:'Consilier Medical AI', med_ai_desc:'Descrie sau fotografie — AI analizează',
+    med_ai_hdr:'Consilier Medical AI',
+    med_warn:'⚠ NU înlocuiește ajutorul medical real. Sună 112 pentru urgențe.',
+    tab_text:'✍️ Descrie', tab_photo:'📷 Foto',
+    med_sym:'Descrie simptomele sau rana',
+    med_ph:'Exemplu: Mușcătură de șarpe pe brațul stâng, umflătură...',
+    med_pat:'Pacient', med_res:'Resurse disponibile',
+    med_btn:'🤖 INSTRUCȚIUNI MEDICALE',
+    med_upload:'Fotografiați sau Încărcați o Rană',
+    med_upload_sub:'Răni · Arsuri · Erupții · Mușcături',
+    plant_warn:'⚠ AI identifică plante și ciuperci. Nu mânca nimic de care nu ești 100% sigur.',
+    plant_upload:'Fotografiați sau Încărcați',
+    plant_sub:'Plante · Ciuperci · Fructe de pădure',
+    rescue_title:'Salvare de Urgență',
+    flood_t:'Inundație', fire_t:'Incendiu', quake_t:'Cutremur',
+    chem_t:'Scurgere Chimică / Gaz', gokit_t:'Geantă de Urgență', evac_t:'Rute Evacuare',
+    flood_d:'Evacuare și siguranța apei', fire_d:'Rute de evacuare și fum',
+    quake_d:'Culcă-te, acoperă-te, ține-te', chem_d:'Decontaminare și adăpost',
+    gokit_d:'Kit de urgență 72 ore', evac_d:'Rute după tipul dezastrului',
+    fa_t:'Ghid Prim Ajutor', fa_d:'CPR, sângerare, arsuri, sufocare',
+    vit_t:'Verificator Semne Vitale', vit_d:'Puls, evaluarea respirației',
+    tri_t:'Triaj Color', tri_d:'Prioritizează victimele',
+    tor_t:'Timer Garou', tor_d:'Urmărire timp — max 2 ore',
+    hyp_t:'Detector Hipotermie', hyp_d:'Stadiu și ghid de tratament',
+    mc_t:'Cardul Meu Medical', mc_d:'Grupa sanguină, alergii, contacte',
+    gps_t:'Poziția Mea', gps_d:'Coordonate GPS + SMS',
+    sos_t:'Semnal SOS', sos_d:'Morse lanternă + alarmă',
+    may_t:'Script MAYDAY', may_d:'Protocol radio pentru salvare',
+    sig_t:'Semnale Terestre', sig_d:'Semne pentru aeronave',
+    frq_t:'Frecvențe de Urgență', frq_d:'Poliție, pompieri, aviație',
+  },
+  uk: {
+    settings:'Налаштування', lang_label:'Мова', theme_label:'Тема',
+    eyebrow:'⚠ Система Екстреного Реагування',
+    m1_num:'01 — ГАЙДИ', m1_title:'Гайди', m1_desc:'Повінь, пожежа, землетрус',
+    m2_num:'02 — МЕДИЦИНА', m2_title:'Медицина', m2_desc:'Перша допомога, тріаж',
+    m3_num:'03 — ЇЖА', m3_title:'ID Рослин', m3_desc:'Фото → чи їстівне?',
+    m4_num:'04 — SOS', m4_title:'Екстрений порятунок', m4_desc:'GPS, сигнали, MAYDAY',
+    g_offline:'Офлайн Гайди', g_offline_desc:'Повінь, пожежа — без інтернету',
+    g_ai:'AI Гайд', g_ai_desc:'Опиши ситуацію — AI дає інструкції',
+    med_offline:'Офлайн Медичні Гайди', med_offline_desc:'CPR, тріаж, кровотеча, опіки',
+    med_ai:'AI Медичний Радник', med_ai_desc:'Опиши або сфотографуй — AI аналізує',
+    med_ai_hdr:'AI Медичний Радник',
+    med_warn:'⚠ НЕ замінює реальну медичну допомогу. Телефонуй 112.',
+    tab_text:'✍️ Описати', tab_photo:'📷 Фото',
+    med_sym:'Опишіть симптоми або травму',
+    med_ph:'Приклад: Укус змії на лівій руці, набряк, біль...',
+    med_pat:'Пацієнт', med_res:'Доступні ресурси',
+    med_btn:'🤖 МЕДИЧНІ ІНСТРУКЦІЇ',
+    med_upload:'Сфотографуйте або Завантажте рану',
+    med_upload_sub:'Рани · Опіки · Укуси · Травми',
+    plant_warn:'⚠ AI визначає рослини та гриби. Не їж нічого, в чому не впевнений на 100%.',
+    plant_upload:'Сфотографуйте або Завантажте',
+    plant_sub:'Рослини · Гриби · Ягоди · Фрукти',
+    rescue_title:'Екстрений Порятунок',
+    flood_t:'Повінь', fire_t:'Пожежа', quake_t:'Землетрус',
+    chem_t:'Хімічний/Газовий витік', gokit_t:'Рюкзак Виживання', evac_t:'Маршрути Евакуації',
+    flood_d:'Евакуація та безпека води', fire_d:'Маршрути втечі та дим',
+    quake_d:'Впади, прикрийся, тримайся', chem_d:'Дезактивація та укриття',
+    gokit_d:'Комплект виживання 72 год', evac_d:'Маршрути за типом катастрофи',
+    fa_t:'Гайд Першої Допомоги', fa_d:'CPR, кровотеча, опіки, задуха',
+    vit_t:'Перевірка Вітальних Знаків', vit_d:'Пульс, оцінка дихання',
+    tri_t:'Кольоровий Тріаж', tri_d:'Пріоритизація постраждалих',
+    tor_t:'Таймер Джгута', tor_d:'Відстеження часу — макс 2 год',
+    hyp_t:'Детектор Гіпотермії', hyp_d:'Стадія та гайд лікування',
+    mc_t:'Моя Медична Картка', mc_d:'Група крові, алергії, контакти',
+    gps_t:'Моя Позиція', gps_d:'GPS координати + SMS',
+    sos_t:'Сигнал SOS', sos_d:'Морзе ліхтарем + сигнал тривоги',
+    may_t:'Скрипт MAYDAY', may_d:'Радіопротокол порятунку',
+    sig_t:'Наземні Сигнали', sig_d:'Знаки для авіації',
+    frq_t:'Екстрені Частоти', frq_d:'Поліція, пожежники, авіація',
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('lang', lang);
+  ['en','ro','uk'].forEach(l => {
+    const el = document.getElementById('lang-'+l);
+    const ch = document.getElementById('lcheck-'+l);
+    if (el) el.style.borderColor = l===lang ? 'rgba(41,182,246,0.4)' : 'rgba(255,255,255,0.07)';
+    if (ch) ch.style.display = l===lang ? 'block' : 'none';
+  });
+  const t = i18n[lang] || i18n.en;
+  const s = (id, val) => { const e=document.getElementById(id); if(e&&val!==undefined) e.textContent=val; };
+  const a = (id, attr, val) => { const e=document.getElementById(id); if(e&&val) e.setAttribute(attr, val); };
+
+  // Settings
+  s('set-title', t.settings); s('set-lang-label', t.lang_label); s('set-theme-label', t.theme_label);
+  // Home
+  s('home-eyebrow', t.eyebrow);
+  s('m1-num', t.m1_num); s('m1-title', t.m1_title); s('m1-desc', t.m1_desc);
+  s('m2-num', t.m2_num); s('m2-title', t.m2_title); s('m2-desc', t.m2_desc);
+  s('m3-num', t.m3_num); s('m3-title', t.m3_title); s('m3-desc', t.m3_desc);
+  s('m4-num', t.m4_num); s('m4-title', t.m4_title); s('m4-desc', t.m4_desc);
+  // Guides
+  s('g-offline-title', t.g_offline); s('g-offline-desc', t.g_offline_desc);
+  s('g-ai-title', t.g_ai); s('g-ai-desc', t.g_ai_desc);
+  // Guides offline sub-items
+  s('si-flood-t', t.flood_t); s('si-flood-d', t.flood_d);
+  s('si-fire-t', t.fire_t); s('si-fire-d', t.fire_d);
+  s('si-quake-t', t.quake_t); s('si-quake-d', t.quake_d);
+  s('si-chem-t', t.chem_t); s('si-chem-d', t.chem_d);
+  s('si-gokit-t', t.gokit_t); s('si-gokit-d', t.gokit_d);
+  s('si-evac-t', t.evac_t); s('si-evac-d', t.evac_d);
+  // Medicine
+  s('med-offline-title', t.med_offline); s('med-offline-desc', t.med_offline_desc);
+  s('med-ai-title2', t.med_ai); s('med-ai-desc', t.med_ai_desc);
+  s('med-ai-title', t.med_ai_hdr);
+  s('med-warn', t.med_warn);
+  s('tab-text-lbl', t.tab_text); s('tab-photo-lbl', t.tab_photo);
+  s('med-label-symptoms', t.med_sym); a('med-situation', 'placeholder', t.med_ph);
+  s('med-label-patient', t.med_pat); s('med-label-resources', t.med_res);
+  s('med-btn-analyze', t.med_btn);
+  s('med-upload-label', t.med_upload); s('med-upload-sub', t.med_upload_sub);
+  // Med offline sub-items
+  s('si-fa-t', t.fa_t); s('si-fa-d', t.fa_d);
+  s('si-vit-t', t.vit_t); s('si-vit-d', t.vit_d);
+  s('si-tri-t', t.tri_t); s('si-tri-d', t.tri_d);
+  s('si-tor-t', t.tor_t); s('si-tor-d', t.tor_d);
+  s('si-hyp-t', t.hyp_t); s('si-hyp-d', t.hyp_d);
+  s('si-mc-t', t.mc_t); s('si-mc-d', t.mc_d);
+  // Food
+  s('plant-warn-text', t.plant_warn);
+  s('plant-upload-label', t.plant_upload); s('plant-upload-sub', t.plant_sub);
+  // Rescue
+  s('rescue-title', t.rescue_title);
+  s('si-gps-t', t.gps_t); s('si-gps-d', t.gps_d);
+  s('si-sos-t', t.sos_t); s('si-sos-d', t.sos_d);
+  s('si-may-t', t.may_t); s('si-may-d', t.may_d);
+  s('si-sig-t', t.sig_t); s('si-sig-d', t.sig_d);
+  s('si-frq-t', t.frq_t); s('si-frq-d', t.frq_d);
+}
+
+// ── MED PHOTO ──
+function switchMedTab(tab) {
+  const isText = tab === 'text';
+  document.getElementById('med-text-mode').style.display = isText ? 'block' : 'none';
+  document.getElementById('med-photo-mode').style.display = isText ? 'none' : 'block';
+  document.getElementById('tab-text').style.background = isText ? 'var(--blue)' : 'var(--bg2)';
+  document.getElementById('tab-text').style.color = isText ? '#000' : 'var(--text)';
+  document.getElementById('tab-text').style.borderColor = isText ? 'var(--blue)' : 'var(--border)';
+  document.getElementById('tab-photo').style.background = isText ? 'var(--bg2)' : 'var(--red)';
+  document.getElementById('tab-photo').style.color = isText ? 'var(--text)' : '#fff';
+  document.getElementById('tab-photo').style.borderColor = isText ? 'var(--border)' : 'var(--red)';
+  document.getElementById('med-result').innerHTML = '';
+}
+
+async function analyzeMedPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    document.getElementById('med-photo-img').src = e.target.result;
+    document.getElementById('med-photo-preview').style.display = 'block';
+    document.getElementById('med-upload-area').innerHTML = '<div style="font-size:14px;color:var(--red);font-weight:700">📷 Photo loaded — analyzing...</div>';
+    document.getElementById('med-result').innerHTML = `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-top:14px">
+        <div style="font-size:28px;animation:blink 1s infinite">🔍</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);margin-top:10px">AI is analyzing the wound...</div>
+      </div>
+    `;
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
+              { type: 'text', text: `You are an emergency medical advisor. Analyze this wound/injury photo carefully.
+
+Respond with:
+
+🔴 SEVERITY: [CRITICAL / SERIOUS / MODERATE / MINOR]
+🩹 TYPE: [Deep cut / Scratch / Burn / Bruise / Animal bite / Snake bite / Insect sting / Allergic reaction / Infection / Other]
+☠️ POISON RISK: [YES - seek help immediately / POSSIBLE - monitor / NO]
+
+WHAT I SEE:
+[describe the wound/injury]
+
+IMMEDIATE ACTIONS:
+1. ...
+2. ...
+
+TREATMENT:
+1. ...
+
+⚠️ WARNING SIGNS:
+- ...
+
+🚫 DO NOT:
+- ...
+
+Be direct. Life may depend on this assessment.` }
+            ]
+          }]
+        })
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.content.map(i => i.text || '').join('');
+      document.getElementById('med-result').innerHTML = `
+        <div style="background:var(--bg2);border:1px solid rgba(255,77,28,0.3);border-radius:14px;padding:16px;margin-top:14px">
+          <div style="font-size:11px;color:var(--red);letter-spacing:2px;font-weight:700;margin-bottom:12px">🤖 AI WOUND ANALYSIS</div>
+          <div style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)">${text}</div>
+        </div>
+        <div class="abox ar" style="margin-top:10px">⚠ Always seek real medical help. Call 112.</div>
+        <button class="btn btn-gh" onclick="document.getElementById('med-input').click()">📷 Analyze Another Photo</button>
+      `;
+    } catch(err) {
+      document.getElementById('med-result').innerHTML = `<div class="abox ar" style="margin-top:14px">❌ Failed: ${err.message}</div>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedLang = localStorage.getItem('lang') || 'en';
+    setTheme(savedTheme);
+    setLang(savedLang);
+  } catch(e) { console.log('Init error:', e); }
+});
+</script>
+</body>
+</html>
