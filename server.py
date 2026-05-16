@@ -3,9 +3,12 @@ import urllib.request
 import urllib.error
 import os
 
-API_KEY = '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'
+# Ключ берётся из переменной окружения (значение ставишь сам в настройках
+# хостинга -> Environment / Config Vars). В код секрет не пишем.
+API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 app = Flask(__name__)
+
 
 def cors(resp):
     resp.headers['Access-Control-Allow-Origin'] = '*'
@@ -13,50 +16,67 @@ def cors(resp):
     resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return resp
 
+
 @app.route('/', methods=['GET'])
+@app.route('/index.html', methods=['GET'])
 @app.route('/RESPONDER.html', methods=['GET'])
 def index():
-    return send_from_directory('.', 'RESPONDER.html')
+    return send_from_directory('.', 'index.html')
+
+
+# Раздача любых статических файлов сайта (картинки, иконки и т.п.),
+# чтобы ничего из существующего фронтенда не отвалилось.
+@app.route('/<path:filename>', methods=['GET'])
+def static_files(filename):
+    return send_from_directory('.', filename)
+
 
 @app.route('/test', methods=['GET'])
 def test():
     return 'Flask works!'
 
+
 @app.route('/api', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/', methods=['GET', 'POST', 'OPTIONS'])
 def api():
     print(f'API called: {request.method}')
+
     if request.method in ['GET', 'OPTIONS']:
-        r = Response('OK')
-        return cors(r)
-    
+        return cors(Response('OK'))
+
     body = request.get_data()
     print(f'Body size: {len(body)} bytes')
-    
+
     req = urllib.request.Request(
         'https://api.anthropic.com/v1/messages',
         data=body,
         headers={
             'Content-Type': 'application/json',
             'x-api-key': API_KEY,
-            'anthropic-version': '2023-06-01'
+            'anthropic-version': '2023-06-01',
         },
-        method='POST'
+        method='POST',
     )
+
     try:
         with urllib.request.urlopen(req) as r:
             result = r.read()
-        print('API success!')
-        return cors(Response(result, content_type='application/json'))
+            print('API success!')
+            return cors(Response(result, content_type='application/json'))
     except urllib.error.HTTPError as e:
-        body = e.read()
-        print(f'API error: {e.code} {body}')
-        return cors(Response(body, status=e.code, content_type='application/json'))
+        err_body = e.read()
+        print(f'API error: {e.code} {err_body}')
+        return cors(Response(err_body, status=e.code,
+                             content_type='application/json'))
     except Exception as e:
         print(f'Exception: {e}')
-        return cors(Response(f'{{"error":"{e}"}}', status=500, content_type='application/json'))
+        return cors(Response(f'{{"error":"{e}"}}', status=500,
+                             content_type='application/json'))
 
-port = int(os.environ.get('PORT', 8000))
-print(f'Server: http://0.0.0.0:{port}')
-print(f'Test: http://0.0.0.0:{port}/test')
-print(f'App: http://0.0.0.0:{port}/RESPONDER.html')
-app.run(host='0.0.0.0', port=port, debug=False)
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8000))
+    print(f'Server: http://0.0.0.0:{port}')
+    print(f'Test:   http://0.0.0.0:{port}/test')
+    print(f'App:    http://0.0.0.0:{port}/')
+    app.run(host='0.0.0.0', port=port, debug=False)
