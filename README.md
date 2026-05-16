@@ -4,14 +4,14 @@
 
 ---
 
-## 🌐 Offline vs Online
 
-| Feature | Internet |
+
+| Feature |
 |---|---|
-| All guides & medical tools | ❌ No |
-| GPS, SOS, Dead Man's Switch | ❌ No |
-| AI Guide, AI Medical, Plant ID | ✅ Yes |
-| Emergency email alert | ✅ Yes |
+| All guides & medical tools |
+| GPS, SOS, Dead Man's Switch |
+| AI Guide, AI Medical, Plant ID |
+| Emergency email alert |
 
 ---
 
