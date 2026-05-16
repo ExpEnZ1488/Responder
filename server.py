@@ -1,6 +1,7 @@
 from flask import Flask, request, Response, send_from_directory
 import urllib.request
 import urllib.error
+import os
 
 API_KEY = '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'
 
@@ -54,7 +55,8 @@ def api():
         print(f'Exception: {e}')
         return cors(Response(f'{{"error":"{e}"}}', status=500, content_type='application/json'))
 
-print('Server: http://localhost:8000')
-print('Test: http://localhost:8000/test')
-print('App: http://localhost:8000/RESPONDER.html')
-app.run(host='127.0.0.1', port=8000, debug=True)
+port = int(os.environ.get('PORT', 8000))
+print(f'Server: http://0.0.0.0:{port}')
+print(f'Test: http://0.0.0.0:{port}/test')
+print(f'App: http://0.0.0.0:{port}/RESPONDER.html')
+app.run(host='0.0.0.0', port=port, debug=False)
