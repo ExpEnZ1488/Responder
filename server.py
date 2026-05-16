@@ -3,6 +3,8 @@ import urllib.request
 import urllib.error
 import os
 
+# Ключ берётся из переменной окружения (значение ставишь сам в настройках
+# хостинга -> Environment / Config Vars). В код секрет не пишем.
 API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 app = Flask(__name__)
@@ -22,6 +24,8 @@ def index():
     return send_from_directory('.', 'index.html')
 
 
+# Раздача любых статических файлов сайта (картинки, иконки и т.п.),
+# чтобы ничего из существующего фронтенда не отвалилось.
 @app.route('/<path:filename>', methods=['GET'])
 def static_files(filename):
     return send_from_directory('.', filename)
